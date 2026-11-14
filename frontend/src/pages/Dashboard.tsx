@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+import { ArrowRight, Hand, MessageSquareText, Type, Video, Waves } from 'lucide-react'
 import { fetchHealth, fetchSigns } from '../lib/api'
-import type { HealthResponse, SignInfo } from '../lib/api'
+import type { SignInfo } from '../lib/api'
 import type { Page } from '../navigation'
 
 interface DashboardProps {
@@ -8,7 +9,6 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ onNavigate }: DashboardProps) {
-  const [health, setHealth] = useState<HealthResponse | null>(null)
   const [signs, setSigns] = useState<SignInfo[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -18,9 +18,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
     async function load() {
       try {
-        const [healthData, signsData] = await Promise.all([fetchHealth(), fetchSigns()])
+        const [, signsData] = await Promise.all([fetchHealth(), fetchSigns()])
         if (cancelled) return
-        setHealth(healthData)
         setSigns(signsData.signs)
         setError(null)
       } catch (loadError) {
@@ -42,40 +41,64 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
   return (
     <section className="page">
-      <div className="hero">
-        <span className="eyebrow">Bidirectional Indian Sign Language</span>
-        <h1>OUTLOUD</h1>
-        <p>
-          A communication platform for Indian Sign Language (ISL). Phase 1 establishes the
-          application shell, real browser-side hand landmark detection, and an ISL video
-          retrieval loader. Sign recognition is intentionally not implemented yet.
-        </p>
+      <div className="hero dashboard-hero">
+        <div className="dashboard-hero-copy">
+          <span className="eyebrow">
+            <Waves size={13} strokeWidth={2} />
+            Welcome back
+          </span>
+          <h1>GESTURA</h1>
+          <p>
+            A calm, bidirectional workspace for Indian Sign Language. Choose a mode below to
+            start converting between signing, text and speech.
+          </p>
+          <div className="hero-actions">
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => onNavigate('sign-to-text')}
+            >
+              <Hand size={16} strokeWidth={2} />
+              Sign to Speech
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => onNavigate('text-to-sign')}
+            >
+              <Type size={16} strokeWidth={2} />
+              Text to Sign
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="dashboard-stats">
         <div className="stat-card">
           <div className="stat-label">Backend API</div>
-          <div className={`stat-value ${apiState === 'online' ? 'ok' : apiState === 'offline' ? 'error' : 'warn'}`}>
+          <div
+            className={`stat-value ${
+              apiState === 'online' ? 'ok' : apiState === 'offline' ? 'error' : 'warn'
+            }`}
+          >
             {apiState}
           </div>
-          <div className="stat-detail">{health ? `${health.app} v${health.version}` : 'Not reachable yet'}</div>
+          <div className="stat-detail">Live service health</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">ISL clips loaded</div>
           <div className="stat-value">{loading ? '—' : signs.length}</div>
-          <div className="stat-detail">
-            {signs.length === 0 ? 'No videos provided yet' : 'Signs with an available clip'}
-          </div>
+          <div className="stat-detail">Available sign videos</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">Recognition</div>
-          <div className="stat-value warn">Not implemented</div>
-          <div className="stat-detail">Planned for a later phase</div>
+          <div className="stat-value warn">Model-dependent</div>
+          <div className="stat-detail">On-device landmark engine</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">Landmark detection</div>
           <div className="stat-value ok">Available</div>
-          <div className="stat-detail">MediaPipe Hands, browser-side</div>
+          <div className="stat-detail">MediaPipe hand tracking</div>
         </div>
       </div>
 
@@ -85,32 +108,49 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </p>
       )}
 
-      <div className="grid two-col">
+      <div className="feature-grid">
         <div className="card mode-card">
+          <span className="mode-icon" aria-hidden="true">
+            <MessageSquareText size={21} strokeWidth={1.7} />
+          </span>
           <h3>Sign → Text</h3>
-          <p>
-            Open the webcam and inspect live hand landmark detection. This demonstrates the
-            capture pipeline only; no sign is recognised and no text is generated.
-          </p>
-          <button type="button" className="btn btn-primary" onClick={() => onNavigate('sign-to-text')}>
+          <p>Recognise Indian Sign Language gestures as readable text and speech.</p>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => onNavigate('sign-to-text')}
+          >
             Open landmark capture
+            <ArrowRight size={15} strokeWidth={2} />
           </button>
         </div>
-        <div className="card mode-card">
-          <h3>Text → Sign</h3>
-          <p>
-            Type words or phrases and retrieve the matching pre-recorded ISL clip. Only signs
-            present in your provided video folder are shown; missing signs are reported honestly.
-          </p>
-          <button type="button" className="btn btn-primary" onClick={() => onNavigate('text-to-sign')}>
-            Open video retrieval
-          </button>
-        </div>
-      </div>
 
-      <div className="notice">
-        <strong>Scope honesty:</strong> Phase 1 does not translate ISL, does not claim full ISL
-        coverage, and does not fabricate videos, predictions or accuracy figures.
+        <div className="card mode-card">
+          <span className="mode-icon" aria-hidden="true">
+            <Type size={21} strokeWidth={1.7} />
+          </span>
+          <h3>Text → Sign</h3>
+          <p>Turn written words into a synchronised Indian Sign Language sequence.</p>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => onNavigate('text-to-sign')}
+          >
+            Open video retrieval
+            <ArrowRight size={15} strokeWidth={2} />
+          </button>
+        </div>
+
+        <div className="card mode-card">
+          <span className="mode-icon" aria-hidden="true">
+            <Video size={21} strokeWidth={1.7} />
+          </span>
+          <h3>Video → Sign</h3>
+          <p>Convert video dialogue into synchronised sign avatar animations.</p>
+          <button type="button" className="btn btn-secondary" disabled>
+            Coming soon
+          </button>
+        </div>
       </div>
     </section>
   )

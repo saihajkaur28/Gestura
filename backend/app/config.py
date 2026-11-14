@@ -12,7 +12,7 @@ def _split_csv(value: str) -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
-APP_NAME = os.getenv("APP_NAME", "OUTLOUD API")
+APP_NAME = os.getenv("APP_NAME", "GESTURA API")
 APP_VERSION = os.getenv("APP_VERSION", "0.1.0")
 
 HOST = os.getenv("HOST", "127.0.0.1")
@@ -27,6 +27,10 @@ CORS_ORIGINS = _split_csv(
 
 VIDEOS_DIR = Path(
     os.getenv("VIDEOS_DIR", str(PROJECT_ROOT / "videos"))
+).expanduser().resolve()
+
+MODELS_DIR = Path(
+    os.getenv("MODELS_DIR", str(PROJECT_ROOT / "backend" / "models" / "isl" / "current"))
 ).expanduser().resolve()
 
 SUPPORTED_VIDEO_EXTENSIONS = {".mp4", ".webm", ".mov", ".m4v", ".ogv"}

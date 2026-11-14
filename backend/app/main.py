@@ -1,18 +1,22 @@
-from datetime import datetime, timezone
+﻿from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import quote
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from .config import (
     APP_NAME,
     APP_VERSION,
     CORS_ORIGINS,
+    MODELS_DIR,
     SUPPORTED_VIDEO_EXTENSIONS,
     VIDEOS_DIR,
 )
+from .recognition.features import FEATURE_VERSION, FRAME_VECTOR_SIZE, SEQUENCE_LENGTH
+from .recognition.schema import PredictRequest
+from .recognition.service import ModelUnavailableError, get_recognition_service
 
 app = FastAPI(title=APP_NAME, version=APP_VERSION)
 
@@ -20,7 +24,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -60,12 +64,14 @@ def root() -> dict[str, str]:
         "version": APP_VERSION,
         "docs": "/docs",
         "health": "/health",
+        "recognition": "/api/recognition/status",
     }
 
 
 @app.get("/health")
 def health() -> dict[str, object]:
     signs = scan_sign_videos()
+    recognition = get_recognition_service(MODELS_DIR).status()
     return {
         "status": "ok",
         "app": APP_NAME,
@@ -74,6 +80,8 @@ def health() -> dict[str, object]:
         "videos_dir": str(VIDEOS_DIR),
         "videos_dir_exists": VIDEOS_DIR.is_dir(),
         "video_signs": len(signs),
+        "recognition_available": bool(recognition.get("available")),
+        "recognition_code": recognition.get("code"),
     }
 
 
@@ -102,3 +110,47 @@ def get_video(sign: str, filename: str) -> FileResponse:
     if video is None or video.name != filename:
         raise HTTPException(status_code=404, detail="Video not found")
     return FileResponse(video)
+
+
+@app.get("/api/recognition/status")
+def recognition_status() -> dict[str, object]:
+    return get_recognition_service(MODELS_DIR).status()
+
+
+@app.post("/api/recognition/predict")
+def recognition_predict(request: PredictRequest) -> JSONResponse:
+    if request.feature_version != FEATURE_VERSION:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"featureVersion must be {FEATURE_VERSION}, "
+                f"received {request.feature_version}."
+            ),
+        )
+    expected_size = FRAME_VECTOR_SIZE
+    for frame in request.frames:
+        if len(frame) != expected_size:
+            raise HTTPException(
+                status_code=422,
+                detail=(
+                    f"Each frame must contain {expected_size} feature values, "
+                    f"received {len(frame)}."
+                ),
+            )
+
+    try:
+        result = get_recognition_service(MODELS_DIR).predict(request.frames)
+    except ModelUnavailableError as error:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "code": error.code,
+                "detail": error.reason,
+                "featureVersion": FEATURE_VERSION,
+                "sequenceLength": SEQUENCE_LENGTH,
+            },
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    return JSONResponse(content=result)

@@ -9,6 +9,9 @@ export const MAX_CANDIDATE_HANDS = 4
 
 export interface HandLandmarkerConfig {
   numHands: number
+  minHandDetectionConfidence: number
+  minHandPresenceConfidence: number
+  minTrackingConfidence: number
 }
 
 export async function createHandLandmarker(
@@ -23,6 +26,9 @@ export async function createHandLandmarker(
     },
     runningMode: 'VIDEO' as const,
     numHands: config.numHands ?? MAX_CANDIDATE_HANDS,
+    minHandDetectionConfidence: config.minHandDetectionConfidence ?? 0.5,
+    minHandPresenceConfidence: config.minHandPresenceConfidence ?? 0.5,
+    minTrackingConfidence: config.minTrackingConfidence ?? 0.5,
   })
 
   try {

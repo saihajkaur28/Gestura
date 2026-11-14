@@ -1,202 +1,114 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { HandLandmarker } from '@mediapipe/tasks-vision'
-import { createHandLandmarker } from '../lib/mediapipe'
-import { drawHandLandmarks } from '../lib/drawLandmarks'
-import { DETECTION_RANGES, HandTracker } from '../lib/handTracking'
+import { Camera, CameraOff, RefreshCw, ScanLine } from 'lucide-react'
+import DatasetCollectorPanel from '../components/DatasetCollectorPanel'
+import RecognitionPanel from '../components/RecognitionPanel'
+import { DatasetRecorder } from '../lib/datasetRecorder'
+import type { DatasetSample } from '../lib/datasetRecorder'
+import { DETECTION_RANGES } from '../lib/handTracking'
 import type { DetectionRange } from '../lib/handTracking'
+import { IslRecognitionEngine } from '../lib/islRecognitionEngine'
+import type { RecognitionUpdate } from '../lib/islRecognitionEngine'
+import { SpeechController } from '../lib/speech'
+import { useHandTrackingCamera } from '../hooks/useHandTrackingCamera'
+import type { TrackingFrame } from '../hooks/useHandTrackingCamera'
 
-type CameraState = 'idle' | 'starting' | 'running' | 'error'
-type ModelState = 'loading' | 'ready' | 'error'
+function sentenceWord(label: string): string {
+  return label.replace(/_/g, ' ')
+}
 
 export default function SignToText() {
-  const videoRef = useRef<HTMLVideoElement | null>(null)
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const landmarkerRef = useRef<HandLandmarker | null>(null)
-  const streamRef = useRef<MediaStream | null>(null)
-  const rafRef = useRef<number | null>(null)
-  const lastVideoTimeRef = useRef(-1)
-  const trackerRef = useRef<HandTracker | null>(null)
-  if (trackerRef.current === null) {
-    trackerRef.current = new HandTracker('medium')
-  }
+  const [recognitionRunning, setRecognitionRunning] = useState(false)
+  const [recognition, setRecognition] = useState<RecognitionUpdate | null>(null)
+  const [sentence, setSentence] = useState<string[]>([])
+  const [speechEnabled, setSpeechEnabled] = useState(false)
+  const [samples, setSamples] = useState<DatasetSample[]>([])
+  const [lastCommitted, setLastCommitted] = useState<string | null>(null)
+  const [speech] = useState(() => new SpeechController())
+  const [recorder] = useState(() => new DatasetRecorder())
 
-  const [modelState, setModelState] = useState<ModelState>('loading')
-  const [cameraState, setCameraState] = useState<CameraState>('idle')
-  const [error, setError] = useState<string | null>(null)
-  const [handCount, setHandCount] = useState(0)
-  const [handedness, setHandedness] = useState('')
-  const [fps, setFps] = useState(0)
-  const [range, setRange] = useState<DetectionRange>('medium')
+  const engineRef = useRef<IslRecognitionEngine | null>(null)
 
-  useEffect(() => {
-    trackerRef.current?.setRange(range)
-  }, [range])
-
-  const loadModel = useCallback(async () => {
-    landmarkerRef.current?.close()
-    landmarkerRef.current = null
-    try {
-      const landmarker = await createHandLandmarker()
-      landmarkerRef.current = landmarker
-      setModelState('ready')
-      setError(null)
-    } catch (loadError) {
-      console.error('[mediapipe] Failed to load the hand landmarker.', loadError)
-      setModelState('error')
-      setError(
-        `Hand landmark model failed to load: ${
-          loadError instanceof Error ? loadError.message : String(loadError)
-        }`,
-      )
-    }
-  }, [])
-
-  useEffect(() => {
-    let cancelled = false
-
-    async function runModelLoad() {
-      try {
-        const landmarker = await createHandLandmarker()
-        if (cancelled) {
-          landmarker.close()
-          return
-        }
-        landmarkerRef.current = landmarker
-        setModelState('ready')
-        setError(null)
-      } catch (loadError) {
-        if (cancelled) return
-        console.error('[mediapipe] Failed to load the hand landmarker.', loadError)
-        setModelState('error')
-        setError(
-          `Hand landmark model failed to load: ${
-            loadError instanceof Error ? loadError.message : String(loadError)
-          }`,
-        )
+  const handleFrame = useCallback(
+    ({ timestamp, tracking }: TrackingFrame) => {
+      engineRef.current?.pushFrame(tracking.activeHands, timestamp)
+      if (recorder.isRecording) {
+        recorder.push(tracking.activeHands, timestamp)
       }
-    }
+    },
+    [recorder],
+  )
 
-    void runModelLoad()
+  const {
+    videoRef,
+    canvasRef,
+    modelState,
+    cameraState,
+    error,
+    handCount,
+    handedness,
+    fps,
+    range,
+    setRange,
+    startCamera,
+    stopCamera,
+    loadModel,
+  } = useHandTrackingCamera({ onFrame: handleFrame })
+
+  useEffect(() => {
+    const engine = new IslRecognitionEngine({
+      onUpdate: (update) => {
+        setRecognition(update)
+        if (update.committed) {
+          setLastCommitted(update.committed)
+          setSentence((current) => [...current, sentenceWord(update.committed!)])
+          speech.speakLabel(update.committed)
+        }
+      },
+    })
+    engineRef.current = engine
 
     return () => {
-      cancelled = true
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current)
-        rafRef.current = null
-      }
-      streamRef.current?.getTracks().forEach((track) => track.stop())
-      streamRef.current = null
-      landmarkerRef.current?.close()
-      landmarkerRef.current = null
+      engine.stop()
+      engineRef.current = null
+      speech.cancel()
     }
-  }, [])
+  }, [speech])
 
-  const stopCamera = useCallback(() => {
-    if (rafRef.current !== null) {
-      cancelAnimationFrame(rafRef.current)
-      rafRef.current = null
+  useEffect(() => {
+    if (cameraState !== 'running' && recognitionRunning) {
+      engineRef.current?.stop()
+      setRecognitionRunning(false)
     }
-    streamRef.current?.getTracks().forEach((track) => track.stop())
-    streamRef.current = null
-    if (videoRef.current) {
-      videoRef.current.srcObject = null
+  }, [cameraState, recognitionRunning])
+
+  const toggleRecognition = useCallback(() => {
+    const engine = engineRef.current
+    if (!engine) return
+    if (recognitionRunning) {
+      engine.stop()
+      setRecognitionRunning(false)
+    } else {
+      void engine.start()
+      setRecognitionRunning(true)
     }
-    lastVideoTimeRef.current = -1
-    trackerRef.current?.reset()
-    const canvas = canvasRef.current
-    if (canvas) {
-      canvas.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height)
-    }
-    setHandCount(0)
-    setHandedness('')
-    setFps(0)
-    setCameraState('idle')
-  }, [])
+  }, [recognitionRunning])
 
-  const startCamera = useCallback(async () => {
-    setError(null)
+  const toggleSpeech = useCallback(() => {
+    setSpeechEnabled((current) => {
+      const next = !current
+      speech.setEnabled(next)
+      return next
+    })
+  }, [speech])
 
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setCameraState('error')
-      setError('This browser does not support camera access (getUserMedia is unavailable).')
-      return
-    }
-    if (!landmarkerRef.current) {
-      setCameraState('error')
-      setError('The hand landmark model is not ready yet. Wait for it to load, then retry.')
-      return
-    }
+  const repeatLast = useCallback(() => {
+    if (!lastCommitted) return
+    setSentence((current) => [...current, sentenceWord(lastCommitted)])
+    speech.speakLabel(lastCommitted)
+  }, [lastCommitted, speech])
 
-    setCameraState('starting')
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'user',
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-        audio: false,
-      })
-      streamRef.current = stream
-
-      const video = videoRef.current
-      if (!video) {
-        throw new Error('The video element is not available.')
-      }
-      video.srcObject = stream
-      await video.play()
-      setCameraState('running')
-
-      let frameCount = 0
-      let lastFpsTime = performance.now()
-
-      const loop = () => {
-        const landmarker = landmarkerRef.current
-        const currentVideo = videoRef.current
-        const canvas = canvasRef.current
-
-        if (landmarker && currentVideo && canvas && currentVideo.readyState >= 2) {
-          if (currentVideo.currentTime !== lastVideoTimeRef.current) {
-            lastVideoTimeRef.current = currentVideo.currentTime
-            const now = performance.now()
-            const result = landmarker.detectForVideo(currentVideo, now)
-            const tracker = trackerRef.current
-            const tracking = tracker?.update(result, now)
-            drawHandLandmarks(canvas, currentVideo, tracking?.renderHands ?? [])
-
-            setHandCount(tracking?.activeHands.length ?? 0)
-            const nextHandedness = (tracking?.activeHands ?? [])
-              .map((hand) => hand.handedness)
-              .join(', ')
-            setHandedness((previous) =>
-              previous === nextHandedness ? previous : nextHandedness,
-            )
-          }
-
-          frameCount += 1
-          const now = performance.now()
-          if (now - lastFpsTime >= 1000) {
-            setFps(Math.round((frameCount * 1000) / (now - lastFpsTime)))
-            frameCount = 0
-            lastFpsTime = now
-          }
-        }
-
-        rafRef.current = requestAnimationFrame(loop)
-      }
-
-      rafRef.current = requestAnimationFrame(loop)
-    } catch (cameraError) {
-      console.error('[camera] Could not start the webcam.', cameraError)
-      streamRef.current?.getTracks().forEach((track) => track.stop())
-      streamRef.current = null
-      setCameraState('error')
-      setError(
-        `Could not start the webcam: ${
-          cameraError instanceof Error ? cameraError.message : String(cameraError)
-        }`,
-      )
-    }
+  const addSample = useCallback((sample: DatasetSample) => {
+    setSamples((current) => [...current, sample])
   }, [])
 
   return (
@@ -205,21 +117,17 @@ export default function SignToText() {
         <div>
           <h1>Sign → Text</h1>
           <p className="page-subtitle">
-            Live webcam hand landmark detection using MediaPipe. Recognition is not implemented in
-            Phase 1, so no sign is interpreted and no text is produced.
+            Sign naturally in front of the camera. Gestura recognises each Indian Sign Language
+            gesture and builds a readable sentence you can speak aloud.
           </p>
         </div>
         <span className={`status-pill ${cameraState === 'running' ? 'ok' : ''}`}>
+          <span className={`status-dot ${cameraState === 'running' ? 'live' : ''}`} />
           {cameraState === 'running' ? 'Camera live' : 'Camera off'}
         </span>
       </header>
 
-      <div className="notice">
-        <strong>Phase 1 scope:</strong> this screen detects and visualises hand landmarks only. It
-        never displays fabricated predictions or recognition results.
-      </div>
-
-      <div className="grid two-col">
+      <div className="workspace-grid">
         <div className="card">
           <div className="card-head">
             <h2>Camera</h2>
@@ -239,12 +147,24 @@ export default function SignToText() {
           <div className="video-frame">
             <video ref={videoRef} className="camera-video" autoPlay playsInline muted />
             <canvas ref={canvasRef} className="landmark-canvas" />
-            {cameraState !== 'running' && <div className="video-placeholder">Camera preview</div>}
+            {cameraState === 'running' && (
+              <span className="camera-overlay-badge live">
+                <span className="dot" aria-hidden="true" />
+                Tracking
+              </span>
+            )}
+            {cameraState !== 'running' && (
+              <div className="video-placeholder">
+                <Camera size={26} strokeWidth={1.5} />
+                Camera preview
+              </div>
+            )}
           </div>
 
           <div className="button-row">
             {cameraState === 'running' ? (
               <button type="button" className="btn btn-secondary" onClick={stopCamera}>
+                <CameraOff size={15} strokeWidth={2} />
                 Stop camera
               </button>
             ) : (
@@ -254,6 +174,7 @@ export default function SignToText() {
                 onClick={() => void startCamera()}
                 disabled={modelState !== 'ready' || cameraState === 'starting'}
               >
+                <Camera size={15} strokeWidth={2} />
                 {cameraState === 'starting' ? 'Starting…' : 'Start camera'}
               </button>
             )}
@@ -262,11 +183,10 @@ export default function SignToText() {
                 type="button"
                 className="btn btn-secondary"
                 onClick={() => {
-                  setModelState('loading')
-                  setError(null)
                   void loadModel()
                 }}
               >
+                <RefreshCw size={15} strokeWidth={2} />
                 Retry model load
               </button>
             )}
@@ -279,8 +199,29 @@ export default function SignToText() {
           )}
         </div>
 
+        <RecognitionPanel
+          update={recognition}
+          running={recognitionRunning}
+          cameraRunning={cameraState === 'running'}
+          sentence={sentence}
+          lastCommitted={lastCommitted}
+          speechEnabled={speechEnabled}
+          speechSupported={speech.supported}
+          onToggleRecognition={toggleRecognition}
+          onClearSentence={() => setSentence([])}
+          onRepeatLast={repeatLast}
+          onToggleSpeech={toggleSpeech}
+        />
+      </div>
+
+      <div className="grid two-col">
         <div className="card">
-          <h2>Detection</h2>
+          <div className="card-head">
+            <h2>Detection</h2>
+            <span className="badge">
+              <ScanLine size={12} strokeWidth={2} /> Live
+            </span>
+          </div>
           <div className="range-control">
             <div className="range-head">
               <span className="range-label">Detection range</span>
@@ -294,7 +235,6 @@ export default function SignToText() {
                   className={`range-option ${range === key ? 'active' : ''}`}
                   onClick={() => setRange(key)}
                   aria-pressed={range === key}
-                  title={DETECTION_RANGES[key].description}
                 >
                   {DETECTION_RANGES[key].label}
                 </button>
@@ -315,19 +255,15 @@ export default function SignToText() {
               <dd>{fps}</dd>
             </div>
           </dl>
-          <p className="hint">
-            Up to two hands are tracked, prioritising the largest detections. Apparent size is a
-            relative proximity cue, not a physical distance in centimetres.
-          </p>
-          <p className="hint">
-            21 landmarks per tracked hand are drawn over the video. The FPS value measures the
-            landmark pass, not the camera frame rate.
-          </p>
-          <p className="hint">
-            Camera access requires a secure context: use <code>http://localhost</code> during local
-            development, and HTTPS when deployed.
-          </p>
         </div>
+
+        <DatasetCollectorPanel
+          recorder={recorder}
+          cameraRunning={cameraState === 'running'}
+          samples={samples}
+          onAddSample={addSample}
+          onClearSamples={() => setSamples([])}
+        />
       </div>
     </section>
   )

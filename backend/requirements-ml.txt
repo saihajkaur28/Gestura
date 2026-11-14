@@ -1,0 +1,12 @@
+# Optional machine-learning dependencies. Install these only when training a
+# model or running the backend with a trained model installed.
+#
+# The base API (health, video catalogue, recognition status) runs without them;
+# /api/recognition/predict reports an honest 503 until these are installed and
+# a real model has been trained.
+#
+# Windows CPU-only example (pick the build that matches your platform):
+#   backend\.venv\Scripts\python.exe -m pip install -r backend\requirements-ml.txt
+-r requirements.txt
+numpy>=1.26,<3
+torch>=2.2

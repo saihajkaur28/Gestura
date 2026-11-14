@@ -1,7 +1,8 @@
-# OUTLOUD frontend
+# Gestura frontend
 
-React + Vite + TypeScript client for OUTLOUD. See the repository root `README.md` for the full
-architecture, setup, environment variables and current phase scope.
+React + Vite + TypeScript client for Gestura. See the repository root `README.md` for
+the full architecture, setup, environment variables, recognition pipeline, dataset collection and
+training instructions.
 
 Quick start:
 
