@@ -1,4 +1,5 @@
-import { FEATURE_VERSION } from './handFeatureExtractor'
+import type { NormalizedLandmark } from '@mediapipe/tasks-vision'
+import { extractCompactFacePoints, FEATURE_VERSION } from './handFeatureExtractor'
 import type { TrackedHand } from './handTracking'
 
 export interface RecorderConfig {
@@ -18,6 +19,7 @@ export interface RecordedHand {
 export interface RecordedFrame {
   t: number
   hands: RecordedHand[]
+  face?: [number, number, number][]
 }
 
 export interface DatasetSample {
@@ -91,20 +93,29 @@ export class DatasetRecorder {
     this.lastError = null
   }
 
-  push(hands: TrackedHand[], timestamp: number): void {
+  push(
+    hands: TrackedHand[],
+    timestamp: number,
+    faceLandmarks: NormalizedLandmark[] = [],
+  ): void {
     if (!this.config || this.startedAt === 0) return
     if (timestamp - this.startedAt > this.config.durationMs + 350) return
-    if (hands.length === 0) return
 
     const recordedHands = hands
       .slice(0, 2)
       .map(serialiseHand)
       .filter((hand): hand is RecordedHand => hand !== null)
-    if (recordedHands.length === 0) return
+
+    const recordedFace = extractCompactFacePoints(faceLandmarks).map(
+      ([x, y, z]) => [round(x), round(y), round(z)] as [number, number, number],
+    )
+
+    if (recordedHands.length === 0 && recordedFace.length === 0) return
 
     this.frames.push({
       t: Math.max(0, timestamp - this.startedAt),
       hands: recordedHands,
+      ...(recordedFace.length > 0 ? { face: recordedFace } : {}),
     })
   }
 
@@ -123,7 +134,7 @@ export class DatasetRecorder {
     this.startedAt = 0
 
     if (frames.length < MIN_RECORDED_FRAMES) {
-      this.lastError = `Too few usable frames (${frames.length}). Keep a hand in view and record for longer.`
+      this.lastError = `Too few usable frames (${frames.length}). Keep a hand or face in view and record for longer.`
       return null
     }
 

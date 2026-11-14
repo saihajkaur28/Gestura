@@ -1,11 +1,13 @@
-import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision'
+import { FaceLandmarker, FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision'
 
 const assetBase = import.meta.env.BASE_URL
 
 export const HAND_LANDMARKER_WASM_PATH = `${assetBase}mediapipe/wasm`
 export const HAND_LANDMARKER_MODEL_PATH = `${assetBase}models/hand_landmarker.task`
+export const FACE_LANDMARKER_MODEL_URL =
+  'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'
 
-export const MAX_CANDIDATE_HANDS = 4
+export const MAX_CANDIDATE_HANDS = 2
 
 export interface HandLandmarkerConfig {
   numHands: number
@@ -36,5 +38,31 @@ export async function createHandLandmarker(
   } catch (error) {
     console.warn('[mediapipe] GPU delegate unavailable, retrying on CPU.', error)
     return HandLandmarker.createFromOptions(vision, buildOptions('CPU'))
+  }
+}
+
+export async function createFaceLandmarker(): Promise<FaceLandmarker | null> {
+  try {
+    const vision = await FilesetResolver.forVisionTasks(HAND_LANDMARKER_WASM_PATH)
+    const buildOptions = (delegate: 'GPU' | 'CPU') => ({
+      baseOptions: {
+        modelAssetPath: FACE_LANDMARKER_MODEL_URL,
+        delegate,
+      },
+      runningMode: 'VIDEO' as const,
+      numFaces: 1,
+      minFaceDetectionConfidence: 0.5,
+      minFacePresenceConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    })
+
+    try {
+      return await FaceLandmarker.createFromOptions(vision, buildOptions('GPU'))
+    } catch {
+      return await FaceLandmarker.createFromOptions(vision, buildOptions('CPU'))
+    }
+  } catch (error) {
+    console.warn('[mediapipe] Face landmarker unavailable, continuing with hands only.', error)
+    return null
   }
 }

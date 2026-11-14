@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { HandLandmarker } from '@mediapipe/tasks-vision'
-import { createHandLandmarker } from '../lib/mediapipe'
+import type { FaceLandmarker, HandLandmarker, NormalizedLandmark } from '@mediapipe/tasks-vision'
+import { createFaceLandmarker, createHandLandmarker } from '../lib/mediapipe'
 import { drawHandLandmarks } from '../lib/drawLandmarks'
 import { DETECTION_RANGES, HandTracker } from '../lib/handTracking'
 import type { DetectionRange, TrackingResult } from '../lib/handTracking'
@@ -11,6 +11,7 @@ export type ModelState = 'loading' | 'ready' | 'error'
 export interface TrackingFrame {
   timestamp: number
   tracking: TrackingResult
+  faceLandmarks: NormalizedLandmark[]
 }
 
 export interface UseHandTrackingCameraOptions {
@@ -21,6 +22,7 @@ export function useHandTrackingCamera(options: UseHandTrackingCameraOptions = {}
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const landmarkerRef = useRef<HandLandmarker | null>(null)
+  const faceLandmarkerRef = useRef<FaceLandmarker | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const rafRef = useRef<number | null>(null)
   const lastVideoTimeRef = useRef(-1)
@@ -51,10 +53,16 @@ export function useHandTrackingCamera(options: UseHandTrackingCameraOptions = {}
   const loadModel = useCallback(async () => {
     landmarkerRef.current?.close()
     landmarkerRef.current = null
+    faceLandmarkerRef.current?.close()
+    faceLandmarkerRef.current = null
     setModelState('loading')
     try {
-      const landmarker = await createHandLandmarker()
+      const [landmarker, faceLandmarker] = await Promise.all([
+        createHandLandmarker(),
+        createFaceLandmarker(),
+      ])
       landmarkerRef.current = landmarker
+      faceLandmarkerRef.current = faceLandmarker
       setModelState('ready')
       setError(null)
     } catch (loadError) {
@@ -109,8 +117,8 @@ export function useHandTrackingCamera(options: UseHandTrackingCameraOptions = {}
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'user',
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
+          width: { ideal: 640 },
+          height: { ideal: 480 },
         },
         audio: false,
       })
@@ -135,6 +143,8 @@ export function useHandTrackingCamera(options: UseHandTrackingCameraOptions = {}
       }
 
       let frameCount = 0
+      let detectStep = 0
+      let cachedFaceLandmarks: NormalizedLandmark[] = []
       let lastFpsTime = performance.now()
 
       const loop = () => {
@@ -153,12 +163,19 @@ export function useHandTrackingCamera(options: UseHandTrackingCameraOptions = {}
             lastVideoTimeRef.current = currentVideo.currentTime
             const now = performance.now()
             const result = landmarker.detectForVideo(currentVideo, now)
+
+            detectStep += 1
+            if (detectStep % 4 === 1) {
+              const faceResult = faceLandmarkerRef.current?.detectForVideo(currentVideo, now)
+              cachedFaceLandmarks = faceResult?.faceLandmarks?.[0] ?? []
+            }
+
             const tracker = trackerRef.current
             const tracking = tracker?.update(result, now)
             drawHandLandmarks(canvas, currentVideo, tracking?.renderHands ?? [])
 
             if (tracking) {
-              onFrameRef.current?.({ timestamp: now, tracking })
+              onFrameRef.current?.({ timestamp: now, tracking, faceLandmarks: cachedFaceLandmarks })
             }
 
             setHandCount(tracking?.activeHands.length ?? 0)
@@ -201,12 +218,17 @@ export function useHandTrackingCamera(options: UseHandTrackingCameraOptions = {}
 
     async function runModelLoad() {
       try {
-        const landmarker = await createHandLandmarker()
+        const [landmarker, faceLandmarker] = await Promise.all([
+          createHandLandmarker(),
+          createFaceLandmarker(),
+        ])
         if (cancelled) {
           landmarker.close()
+          faceLandmarker?.close()
           return
         }
         landmarkerRef.current = landmarker
+        faceLandmarkerRef.current = faceLandmarker
         setModelState('ready')
         setError(null)
       } catch (loadError) {
@@ -242,6 +264,8 @@ export function useHandTrackingCamera(options: UseHandTrackingCameraOptions = {}
       streamRef.current = null
       landmarkerRef.current?.close()
       landmarkerRef.current = null
+      faceLandmarkerRef.current?.close()
+      faceLandmarkerRef.current = null
     }
   }, [])
 

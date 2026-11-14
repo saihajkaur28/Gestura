@@ -5,10 +5,12 @@ import type { TrackedHand } from './handTracking'
  * Versioned feature contract shared with backend/app/recognition/features.py.
  * Changes require bumping FEATURE_VERSION and retraining the model.
  */
-export const FEATURE_VERSION = 1
+export const FEATURE_VERSION = 2
 export const MAX_FEATURE_HANDS = 2
 export const HAND_VECTOR_SIZE = 21 * 3 + 2
-export const FRAME_VECTOR_SIZE = HAND_VECTOR_SIZE * MAX_FEATURE_HANDS
+export const FACE_KEY_INDICES = [1, 70, 300, 33, 263, 13, 14, 61, 291, 152] as const
+export const FACE_VECTOR_SIZE = FACE_KEY_INDICES.length * 3 + 1
+export const FRAME_VECTOR_SIZE = HAND_VECTOR_SIZE * MAX_FEATURE_HANDS + FACE_VECTOR_SIZE
 
 export type FingerName = 'thumb' | 'index' | 'middle' | 'ring' | 'pinky'
 export type HandednessName = 'Left' | 'Right' | 'Unknown'
@@ -109,6 +111,39 @@ function createZeroVector(): number[] {
   return new Array<number>(FRAME_VECTOR_SIZE).fill(0)
 }
 
+export function extractCompactFacePoints(
+  faceLandmarks: NormalizedLandmark[],
+): [number, number, number][] {
+  if (faceLandmarks.length < 301) return []
+  const points: [number, number, number][] = []
+  for (const idx of FACE_KEY_INDICES) {
+    const lm = faceLandmarks[idx]
+    if (!lm || !isFiniteNumber(lm.x) || !isFiniteNumber(lm.y) || !isFiniteNumber(lm.z)) {
+      return []
+    }
+    points.push([lm.x, lm.y, lm.z])
+  }
+  return points
+}
+
+function normaliseFaceVector(facePoints: [number, number, number][]): number[] {
+  if (facePoints.length < FACE_KEY_INDICES.length) {
+    return new Array<number>(FACE_VECTOR_SIZE).fill(0)
+  }
+  const nose = facePoints[0]!
+  const leftEye = facePoints[3]!
+  const rightEye = facePoints[4]!
+  const scale = Math.max(Math.hypot(rightEye[0] - leftEye[0], rightEye[1] - leftEye[1]), 1e-6)
+  const vector: number[] = []
+  for (const pt of facePoints) {
+    vector.push((pt[0] - nose[0]) / scale)
+    vector.push((pt[1] - nose[1]) / scale)
+    vector.push((pt[2] - nose[2]) / scale)
+  }
+  vector.push(1)
+  return vector
+}
+
 function normaliseHandVector(hand: HandFeatures): number[] {
   const vector: number[] = []
   const wrist = hand.landmarks[0]
@@ -136,8 +171,6 @@ function extractHand(
   const middleMcp = landmarks[9]
   if (!middleMcp) return null
 
-  // Match the Python training feature spec: scale uses the 2D wrist→middle-MCP
-  // distance because MediaPipe z is relative depth and is noisier.
   const palmScale = Math.max(
     Math.hypot(middleMcp.x - wrist.x, middleMcp.y - wrist.y),
     1e-6,
@@ -245,7 +278,11 @@ export class HandFeatureExtractor {
     this.previous.clear()
   }
 
-  update(hands: TrackedHand[], timestamp: number): FrameFeatures {
+  update(
+    hands: TrackedHand[],
+    timestamp: number,
+    faceLandmarks: NormalizedLandmark[] = [],
+  ): FrameFeatures {
     const valid: HandFeatures[] = []
     for (const hand of hands) {
       const features = extractHand(hand, this.previous.get(hand.id), timestamp)
@@ -273,6 +310,12 @@ export class HandFeatureExtractor {
         modelVector[offset + i] = vector[i] ?? 0
       }
     })
+
+    const faceVector = normaliseFaceVector(extractCompactFacePoints(faceLandmarks))
+    const faceOffset = HAND_VECTOR_SIZE * MAX_FEATURE_HANDS
+    for (let i = 0; i < FACE_VECTOR_SIZE; i += 1) {
+      modelVector[faceOffset + i] = faceVector[i] ?? 0
+    }
 
     let interWristDistance: number | null = null
     if (valid.length >= 2) {

@@ -10,7 +10,8 @@ Raw frame schema (as exported by the dataset collector):
       "hands": [
         {"handedness": "Left" | "Right" | "Unknown",
          "landmarks": [[x, y, z], ... 21 rows]}
-      ]
+      ],
+      "face": [[x, y, z], ... 10 rows]  # optional
     }
 """
 
@@ -18,11 +19,13 @@ from __future__ import annotations
 
 from typing import Any, Iterable, Sequence
 
-FEATURE_VERSION = 1
+FEATURE_VERSION = 2
 SEQUENCE_LENGTH = 32
 MAX_HANDS = 2
 HAND_VECTOR_SIZE = 21 * 3 + 2  # 63 normalised coords + handedness + presence
-FRAME_VECTOR_SIZE = HAND_VECTOR_SIZE * MAX_HANDS  # 130
+FACE_KEY_COUNT = 10
+FACE_VECTOR_SIZE = FACE_KEY_COUNT * 3 + 1  # 30 normalised face coords + presence
+FRAME_VECTOR_SIZE = HAND_VECTOR_SIZE * MAX_HANDS + FACE_VECTOR_SIZE  # 161
 
 _HANDEDNESS_VALUE = {"left": -1.0, "right": 1.0, "unknown": 0.0}
 _MIN_SCALE = 1e-6
@@ -64,6 +67,37 @@ def _normalise_hand(hand: dict[str, Any]) -> list[float]:
     return vector
 
 
+def _normalise_face(face_points: Sequence[Any]) -> list[float]:
+    if not isinstance(face_points, Sequence) or len(face_points) < FACE_KEY_COUNT:
+        return [0.0] * FACE_VECTOR_SIZE
+
+    nose = face_points[0]
+    left_eye = face_points[3]
+    right_eye = face_points[4]
+    try:
+        scale = (
+            (float(right_eye[0]) - float(left_eye[0])) ** 2
+            + (float(right_eye[1]) - float(left_eye[1])) ** 2
+        ) ** 0.5
+    except (TypeError, ValueError, IndexError):
+        return [0.0] * FACE_VECTOR_SIZE
+    if scale < _MIN_SCALE:
+        scale = _MIN_SCALE
+
+    vector: list[float] = []
+    for point in face_points[:FACE_KEY_COUNT]:
+        try:
+            x = (float(point[0]) - float(nose[0])) / scale
+            y = (float(point[1]) - float(nose[1])) / scale
+            z = (float(point[2]) - float(nose[2])) / scale
+        except (TypeError, ValueError, IndexError):
+            return [0.0] * FACE_VECTOR_SIZE
+        vector.extend((x, y, z))
+
+    vector.append(1.0)
+    return vector
+
+
 def _order_hands(hands: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
     order = {"left": 0, "right": 1, "unknown": 2}
 
@@ -89,6 +123,7 @@ def frame_feature_vector(frame: dict[str, Any]) -> list[float]:
             vector.extend(_normalise_hand(hands[index]))
         else:
             vector.extend([0.0] * HAND_VECTOR_SIZE)
+    vector.extend(_normalise_face(frame.get("face") or []))
     return vector
 
 

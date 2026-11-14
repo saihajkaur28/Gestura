@@ -1,3 +1,4 @@
+import type { NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { API_BASE_URL } from './api'
 import { FEATURE_VERSION, HandFeatureExtractor } from './handFeatureExtractor'
 import { GestureSequenceBuffer, SEQUENCE_LENGTH } from './gestureSequenceBuffer'
@@ -110,10 +111,10 @@ export class IslRecognitionEngine {
 
   constructor(options: RecognitionEngineOptions) {
     this.apiBaseUrl = (options.apiBaseUrl ?? API_BASE_URL).replace(/\/+$/, '')
-    this.intervalMs = options.intervalMs ?? 140
+    this.intervalMs = options.intervalMs ?? 90
     this.onUpdate = options.onUpdate
     this.stabilizer = new PredictionStabilizer({
-      confidenceThreshold: options.confidenceThreshold ?? 0.55,
+      confidenceThreshold: options.confidenceThreshold ?? 0.68,
     })
   }
 
@@ -166,11 +167,15 @@ export class IslRecognitionEngine {
     this.topK = []
   }
 
-  pushFrame(hands: TrackedHand[], timestamp: number): void {
+  pushFrame(
+    hands: TrackedHand[],
+    timestamp: number,
+    faceLandmarks: NormalizedLandmark[] = [],
+  ): void {
     if (!this.running) return
-    const features = this.extractor.update(hands, timestamp)
+    const features = this.extractor.update(hands, timestamp, faceLandmarks)
     this.buffer.push(timestamp, features.modelVector)
-    if (features.hands.length > 0) {
+    if (features.hands.length > 0 || faceLandmarks.length > 0) {
       this.lastHandAt = timestamp
     }
   }
@@ -253,7 +258,6 @@ export class IslRecognitionEngine {
     }
 
     if (now - this.lastHandAt > NO_HANDS_GRACE_MS) {
-      // Drop stale frames so the next sign starts from a clean sequence.
       this.buffer.clear()
       const snapshot = this.stabilizer.push(null, now)
       this.emitSnapshot(

@@ -29,10 +29,10 @@ export default function SignToText() {
   const engineRef = useRef<IslRecognitionEngine | null>(null)
 
   const handleFrame = useCallback(
-    ({ timestamp, tracking }: TrackingFrame) => {
-      engineRef.current?.pushFrame(tracking.activeHands, timestamp)
+    ({ timestamp, tracking, faceLandmarks }: TrackingFrame) => {
+      engineRef.current?.pushFrame(tracking.activeHands, timestamp, faceLandmarks)
       if (recorder.isRecording) {
-        recorder.push(tracking.activeHands, timestamp)
+        recorder.push(tracking.activeHands, timestamp, faceLandmarks)
       }
     },
     [recorder],

@@ -63,7 +63,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--val-ratio", type=float, default=0.15)
     parser.add_argument("--test-ratio", type=float, default=0.15)
-    parser.add_argument("--unknown-threshold", type=float, default=0.55)
+    parser.add_argument("--unknown-threshold", type=float, default=0.38)
     parser.add_argument("--patience", type=int, default=12)
     parser.add_argument(
         "--allow-random-split",
@@ -175,20 +175,27 @@ def split_samples(
     return train, val, test, strategy
 
 
-def to_arrays(samples: list[dict[str, Any]], label_to_index: dict[str, int]) -> tuple[np.ndarray, np.ndarray]:
-    features = np.stack(
-        [
-            np.asarray(
-                resample_feature_sequence(sample["frames"], SEQUENCE_LENGTH),
-                dtype=np.float32,
-            )
-            for sample in samples
-        ]
-    )
-    labels = np.asarray(
-        [label_to_index[sample["label"]] for sample in samples], dtype=np.int64
-    )
-    return features, labels
+def to_arrays(
+    samples: list[dict[str, Any]], label_to_index: dict[str, int], augment: bool = False
+) -> tuple[np.ndarray, np.ndarray]:
+    rng = np.random.default_rng(42)
+    feat_list: list[np.ndarray] = []
+    label_list: list[int] = []
+    for sample in samples:
+        base = np.asarray(
+            resample_feature_sequence(sample["frames"], SEQUENCE_LENGTH),
+            dtype=np.float32,
+        )
+        lbl = label_to_index[sample["label"]]
+        feat_list.append(base)
+        label_list.append(lbl)
+        if augment:
+            for _ in range(7):
+                scale = rng.uniform(0.92, 1.08, size=(1, base.shape[1])).astype(np.float32)
+                noise = rng.normal(0.0, 0.015, size=base.shape).astype(np.float32)
+                feat_list.append(base * scale + noise)
+                label_list.append(lbl)
+    return np.stack(feat_list), np.asarray(label_list, dtype=np.int64)
 
 
 def compute_normalisation(features: np.ndarray) -> tuple[list[float], list[float]]:
@@ -333,9 +340,9 @@ def main() -> None:
     class_names = sorted(class_counts)
     label_to_index = {name: index for index, name in enumerate(class_names)}
 
-    train_x, train_y = to_arrays(train_samples, label_to_index)
-    val_x, val_y = to_arrays(val_samples, label_to_index)
-    test_x, test_y = to_arrays(test_samples, label_to_index)
+    train_x, train_y = to_arrays(train_samples, label_to_index, augment=True)
+    val_x, val_y = to_arrays(val_samples, label_to_index, augment=False)
+    test_x, test_y = to_arrays(test_samples, label_to_index, augment=False)
 
     mean, std = compute_normalisation(train_x)
     train_x = apply_normalisation(train_x, mean, std)
