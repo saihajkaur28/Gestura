@@ -173,6 +173,34 @@ footer p,
   outline-offset: 2px;
 }
 
+.sign2text {
+  border: 1px solid var(--line);
+  background: var(--charcoal);
+  padding: 12px;
+}
+
+.s2t-video-wrap {
+  position: relative;
+  margin: 8px 0;
+  background: #000;
+  border: 1px solid var(--line);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.s2t-video-wrap video,
+.s2t-video-wrap canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.s2t-video-wrap canvas {
+  pointer-events: none;
+}
+
 button:focus-visible,
 .transcript li:focus-visible {
   outline: 3px solid var(--cyan);
