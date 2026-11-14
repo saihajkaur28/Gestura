@@ -1,0 +1,4 @@
+# Environment variables (keys ko GitHub par jaane se rokne ke liye)
+.env
+.env.local
+node_modules/
