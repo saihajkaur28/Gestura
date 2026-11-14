@@ -40,3 +40,8 @@ videos/*
 Thumbs.db
 .vscode/
 .idea/
+# Environment variables (keys ko GitHub par jaane se rokne ke liye)
+.env
+.env.local
+node_modules/
+*.mp4
