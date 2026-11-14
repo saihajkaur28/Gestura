@@ -24,6 +24,11 @@ frontend/public/mediapipe/
 frontend/public/models/*
 !frontend/public/models/.gitkeep
 
+# Collected landmark datasets and trained model artefacts are personal/large.
+# They are produced locally and never committed.
+backend/data/
+backend/models/
+
 # ISL recordings are private / large and provided separately.
 # The backend serves them at runtime from VIDEOS_DIR (default: ./videos).
 videos/*
