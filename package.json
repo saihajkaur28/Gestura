@@ -1,0 +1,7 @@
+{
+  "name": "gestura",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Gestura browser-based accessibility platform"
+}

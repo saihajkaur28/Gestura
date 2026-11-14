@@ -1,0 +1,148 @@
+:root {
+  color-scheme: dark;
+  --navy: #071421;
+  --charcoal: #121a24;
+  --ink: #f4fbff;
+  --muted: #9bb0c3;
+  --cyan: #3ee0f0;
+  --blue: #2f7dff;
+  --line: #243140;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--navy);
+  color: var(--ink);
+  font: 15px/1.45 "Segoe UI", system-ui, sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 16px 24px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--cyan);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+h1,
+h2 {
+  margin: 4px 0 0;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 22px;
+}
+
+h2 {
+  font-size: 14px;
+}
+
+.status,
+.count,
+.label,
+footer p,
+.meta span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.status {
+  margin: 8px 0 0;
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.meta div {
+  background: var(--charcoal);
+  border: 1px solid var(--line);
+  padding: 8px 10px;
+}
+
+.meta strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+}
+
+.current {
+  border: 1px solid var(--cyan);
+  padding: 12px;
+  background: #0c2233;
+}
+
+.current-text {
+  margin: 6px 0 0;
+  font-size: 18px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.transcript-wrap {
+  flex: 1;
+  min-height: 180px;
+}
+
+.transcript {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  max-height: 46vh;
+  overflow: auto;
+  border: 1px solid var(--line);
+}
+
+.transcript li {
+  width: 100%;
+  display: block;
+  text-align: left;
+  background: transparent;
+  color: inherit;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 12px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.transcript li[aria-current="true"] {
+  background: #12344a;
+  outline: 1px solid var(--blue);
+}
+
+.transcript time {
+  display: block;
+  color: var(--cyan);
+  font-size: 11px;
+}
+
+button:focus-visible,
+.transcript li:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+footer p {
+  margin: 0;
+}

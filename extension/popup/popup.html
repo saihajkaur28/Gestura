@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Gestura</title>
+    <style>
+      body {
+        margin: 0;
+        width: 260px;
+        background: #071421;
+        color: #f4fbff;
+        font: 14px/1.4 "Segoe UI", system-ui, sans-serif;
+        padding: 14px;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 16px;
+      }
+      p {
+        margin: 0 0 12px;
+        color: #9bb0c3;
+      }
+      button {
+        width: 100%;
+        border: 1px solid #3ee0f0;
+        background: #0c2233;
+        color: #f4fbff;
+        padding: 10px;
+        cursor: pointer;
+      }
+      button:focus-visible {
+        outline: 3px solid #3ee0f0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Gestura</h1>
+    <p>Open the side panel for the live YouTube transcript.</p>
+    <button id="open" type="button">Open side panel</button>
+    <script src="../shared/messages.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

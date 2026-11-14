@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gestura</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <header class="top">
+      <p class="eyebrow">Gestura</p>
+      <h1>Live transcript</h1>
+      <p id="status" class="status" role="status">Waiting for a supported page.</p>
+    </header>
+
+    <section class="meta" aria-label="Caption metadata">
+      <div><span>Site</span><strong id="site">—</strong></div>
+      <div><span>Language</span><strong id="language">—</strong></div>
+      <div><span>Source</span><strong id="source">—</strong></div>
+      <div><span>Time</span><strong id="time">0:00</strong></div>
+    </section>
+
+    <section class="current" aria-live="polite">
+      <p class="label">Current caption</p>
+      <p id="current-text" class="current-text">No caption yet.</p>
+    </section>
+
+    <section class="transcript-wrap">
+      <div class="row">
+        <h2>Transcript</h2>
+        <p id="count" class="count">0 segments</p>
+      </div>
+      <ol id="transcript" class="transcript"></ol>
+    </section>
+
+    <footer>
+      <p>
+        Captions come from in-page tracks or rendered cue text. Whisper fallback
+        is not enabled yet. Avatar signing is not claimed until GenASL returns a
+        real motion plan.
+      </p>
+    </footer>
+
+    <script src="../shared/messages.js"></script>
+    <script src="../shared/caption-segment.js"></script>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
