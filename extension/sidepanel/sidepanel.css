@@ -137,6 +137,42 @@ footer p,
   font-size: 11px;
 }
 
+.ai {
+  border: 1px solid var(--line);
+  background: var(--charcoal);
+  padding: 12px;
+}
+
+.ai .interpretation {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.ai .interpretation p {
+  margin: 0 0 8px;
+}
+
+.ai .interpretation small {
+  color: var(--muted);
+}
+
+.ai button {
+  appearance: none;
+  border: 1px solid var(--cyan);
+  background: #0c2233;
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.ai button:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 2px;
+}
+
 button:focus-visible,
 .transcript li:focus-visible {
   outline: 3px solid var(--cyan);

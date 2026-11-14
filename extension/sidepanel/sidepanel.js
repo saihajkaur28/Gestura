@@ -11,6 +11,8 @@
     current: document.getElementById("current-text"),
     count: document.getElementById("count"),
     transcript: document.getElementById("transcript"),
+    interpret: document.getElementById("interpret"),
+    interpretation: document.getElementById("interpretation"),
   };
 
   let segments = [];
@@ -101,6 +103,27 @@
     if (current) els.current.textContent = current.text;
   }
 
+  async function runInterpretation() {
+    try {
+      const response = await GesturaBackend.interpretCaptions(segments, { source: "youtube-caption" });
+      if (!response.ok) {
+        els.status.textContent = "Caption interpretation failed: " + response.error;
+        return;
+      }
+      const result = response.result || {};
+      const interpretation = result.interpretation || {};
+      const summary = typeof interpretation.summary === "string" ? interpretation.summary : "";
+      const bullets = Array.isArray(interpretation.bullets) ? interpretation.bullets.join(" ") : "";
+      els.interpretation.innerHTML =
+        "<p>" + (summary || result.transcript || "No interpretation produced.") + "</p>" +
+        (bullets ? "<p>" + bullets + "</p>" : "") +
+        "<p><small>" + (result.disclaimer || "AI-generated language output.") + "</small></p>";
+      els.status.textContent = "Caption interpretation returned from Gestura backend.";
+    } catch (err) {
+      els.status.textContent = "Caption interpretation failed: " + ((err && err.message) || "unknown error");
+    }
+  }
+
   chrome.runtime.onMessage.addListener((message) => {
     if (!isGesturaMessage(message)) return;
     if (message.type === TYPES.PAGE_CONTEXT) applyContext(message.payload);
@@ -111,6 +134,12 @@
       els.status.textContent = "Gestura error: " + detail;
     }
   });
+
+  if (els.interpret) {
+    els.interpret.addEventListener("click", () => {
+      runInterpretation();
+    });
+  }
 
   async function hydrateFromTab() {
     const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });

@@ -33,6 +33,14 @@
       <ol id="transcript" class="transcript"></ol>
     </section>
 
+    <section class="ai">
+      <div class="row">
+        <h2>AI assist</h2>
+        <button id="interpret" type="button">Interpret captions</button>
+      </div>
+      <div id="interpretation" class="interpretation">Nothing interpreted yet.</div>
+    </section>
+
     <footer>
       <p>
         Captions come from in-page tracks or rendered cue text. Whisper fallback
@@ -43,6 +51,7 @@
 
     <script src="../shared/messages.js"></script>
     <script src="../shared/caption-segment.js"></script>
+    <script src="../shared/backend.js"></script>
     <script src="sidepanel.js"></script>
   </body>
 </html>
