@@ -307,6 +307,7 @@
 
 .landmark-canvas {
   transform: scaleX(-1);
+  object-fit: cover;
   pointer-events: none;
 }
 
@@ -363,6 +364,65 @@
 
 .btn-secondary {
   background: transparent;
+}
+
+.range-control {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.range-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.range-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.range-value {
+  font-size: 12px;
+  color: var(--accent);
+}
+
+.range-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.range-option {
+  flex: 1 1 0;
+  padding: 8px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.range-option:hover {
+  border-color: rgba(56, 189, 248, 0.45);
+  color: var(--text);
+}
+
+.range-option.active {
+  border-color: rgba(56, 189, 248, 0.65);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(34, 211, 238, 0.1));
+  color: #e0f2fe;
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.2);
 }
 
 .stat-list {

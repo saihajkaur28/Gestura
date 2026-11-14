@@ -5,7 +5,15 @@ const assetBase = import.meta.env.BASE_URL
 export const HAND_LANDMARKER_WASM_PATH = `${assetBase}mediapipe/wasm`
 export const HAND_LANDMARKER_MODEL_PATH = `${assetBase}models/hand_landmarker.task`
 
-export async function createHandLandmarker(): Promise<HandLandmarker> {
+export const MAX_CANDIDATE_HANDS = 4
+
+export interface HandLandmarkerConfig {
+  numHands: number
+}
+
+export async function createHandLandmarker(
+  config: Partial<HandLandmarkerConfig> = {},
+): Promise<HandLandmarker> {
   const vision = await FilesetResolver.forVisionTasks(HAND_LANDMARKER_WASM_PATH)
 
   const buildOptions = (delegate: 'GPU' | 'CPU') => ({
@@ -14,7 +22,7 @@ export async function createHandLandmarker(): Promise<HandLandmarker> {
       delegate,
     },
     runningMode: 'VIDEO' as const,
-    numHands: 2,
+    numHands: config.numHands ?? MAX_CANDIDATE_HANDS,
   })
 
   try {

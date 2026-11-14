@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { HandLandmarker } from '@mediapipe/tasks-vision'
 import { createHandLandmarker } from '../lib/mediapipe'
 import { drawHandLandmarks } from '../lib/drawLandmarks'
+import { DETECTION_RANGES, HandTracker } from '../lib/handTracking'
+import type { DetectionRange } from '../lib/handTracking'
 
 type CameraState = 'idle' | 'starting' | 'running' | 'error'
 type ModelState = 'loading' | 'ready' | 'error'
@@ -13,6 +15,10 @@ export default function SignToText() {
   const streamRef = useRef<MediaStream | null>(null)
   const rafRef = useRef<number | null>(null)
   const lastVideoTimeRef = useRef(-1)
+  const trackerRef = useRef<HandTracker | null>(null)
+  if (trackerRef.current === null) {
+    trackerRef.current = new HandTracker('medium')
+  }
 
   const [modelState, setModelState] = useState<ModelState>('loading')
   const [cameraState, setCameraState] = useState<CameraState>('idle')
@@ -20,6 +26,11 @@ export default function SignToText() {
   const [handCount, setHandCount] = useState(0)
   const [handedness, setHandedness] = useState('')
   const [fps, setFps] = useState(0)
+  const [range, setRange] = useState<DetectionRange>('medium')
+
+  useEffect(() => {
+    trackerRef.current?.setRange(range)
+  }, [range])
 
   const loadModel = useCallback(async () => {
     landmarkerRef.current?.close()
@@ -91,6 +102,7 @@ export default function SignToText() {
       videoRef.current.srcObject = null
     }
     lastVideoTimeRef.current = -1
+    trackerRef.current?.reset()
     const canvas = canvasRef.current
     if (canvas) {
       canvas.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height)
@@ -146,12 +158,15 @@ export default function SignToText() {
         if (landmarker && currentVideo && canvas && currentVideo.readyState >= 2) {
           if (currentVideo.currentTime !== lastVideoTimeRef.current) {
             lastVideoTimeRef.current = currentVideo.currentTime
-            const result = landmarker.detectForVideo(currentVideo, performance.now())
-            drawHandLandmarks(canvas, currentVideo, result)
+            const now = performance.now()
+            const result = landmarker.detectForVideo(currentVideo, now)
+            const tracker = trackerRef.current
+            const tracking = tracker?.update(result, now)
+            drawHandLandmarks(canvas, currentVideo, tracking?.renderHands ?? [])
 
-            setHandCount(result.landmarks.length)
-            const nextHandedness = result.handedness
-              .map((categories) => categories[0]?.categoryName ?? 'Unknown')
+            setHandCount(tracking?.activeHands.length ?? 0)
+            const nextHandedness = (tracking?.activeHands ?? [])
+              .map((hand) => hand.handedness)
               .join(', ')
             setHandedness((previous) =>
               previous === nextHandedness ? previous : nextHandedness,
@@ -266,9 +281,29 @@ export default function SignToText() {
 
         <div className="card">
           <h2>Detection</h2>
+          <div className="range-control">
+            <div className="range-head">
+              <span className="range-label">Detection range</span>
+              <span className="range-value">{DETECTION_RANGES[range].label}</span>
+            </div>
+            <div className="range-options" role="group" aria-label="Detection range">
+              {(Object.keys(DETECTION_RANGES) as DetectionRange[]).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={`range-option ${range === key ? 'active' : ''}`}
+                  onClick={() => setRange(key)}
+                  aria-pressed={range === key}
+                  title={DETECTION_RANGES[key].description}
+                >
+                  {DETECTION_RANGES[key].label}
+                </button>
+              ))}
+            </div>
+          </div>
           <dl className="stat-list">
             <div>
-              <dt>Hands detected</dt>
+              <dt>Hands in range</dt>
               <dd>{handCount}</dd>
             </div>
             <div>
@@ -281,7 +316,11 @@ export default function SignToText() {
             </div>
           </dl>
           <p className="hint">
-            21 landmarks per detected hand are drawn over the video. The FPS value measures the
+            Up to two hands are tracked, prioritising the largest detections. Apparent size is a
+            relative proximity cue, not a physical distance in centimetres.
+          </p>
+          <p className="hint">
+            21 landmarks per tracked hand are drawn over the video. The FPS value measures the
             landmark pass, not the camera frame rate.
           </p>
           <p className="hint">
