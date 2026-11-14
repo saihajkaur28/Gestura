@@ -318,7 +318,7 @@ Secrets: `GEMINI_API_KEY`, Whisper model path — server env only.
 | M0 | Audit + plan | This file exists; vendor copies present; GenASL unmodified | Done |
 | M1 | MV3 foundation | Install, side panel, messaging, floating button | Code complete; Chrome load still manual |
 | M2 | YouTube captions | Sync transcript on a real video; missing-caption path | Code + unit tests; Chrome verification pending |
-| M3 | Gestura FastAPI + Gemini + Whisper | Structured responses, no client secrets | Planned |
+| M3 | Gestura FastAPI + Gemini + Whisper | Structured responses, no client secrets | Partial — backend scaffold landed; live provider wiring pending |
 | M4 | GenASL adapter | Health/503 handled; no vendor file edits | Planned |
 | M5 | Braille + Morse | Round-trip tests | Planned |
 | M6 | More adapters | Per-site tests | Planned |
@@ -422,3 +422,14 @@ Do not modify protected GenASL files in later milestones without approval.
 - **Passed / failed:** 7/7 pass, 0 fail (after the `"type": "commonjs"` fix; before it, 5 of 6 shared-module tests failed).
 - **Still needs work:** live Chrome verification on a captioned YouTube video; verify background → side panel push wiring; Whisper/Gemini; GenASL adapter; ISL Mixamo player; backend / accessibility modules.
 - **Browser verification:** required (unchanged). Load `extension/` in Chrome and test a watch page with captions on.
+
+### 2026-11-15 — M3 Gestura FastAPI backend scaffold (Gemini + Whisper)
+
+- **Implemented:** Gestura FastAPI backend scaffold with `GET /v1/health`, `POST /v1/captions/interpret`, `POST /v1/audio/transcribe`; Gemini provider (`backend/providers/gemini_provider.py`) and Whisper provider (`backend/providers/whisper_provider.py`) behind provider interfaces with lazy credential/model loading; caption interpretation service with ISL disclaimer; server-side-only secrets via `backend/config.py`.
+- **Implemented:** backend dependencies (`backend/dependencies.py`) for provider injection; FastAPI app with CORS configured from env.
+- **Files created:** `backend/**` (main, config, dependencies, providers, services, routers, tests, requirements).
+- **Files modified:** none under `vendor/genasl` or `vendor/sign-kit`.
+- **Tests executed:** not runnable in the current environment (no Python runtime installed); tests written with FastAPI `TestClient` + fake providers (`backend/tests/test_*.py`).
+- **Passed / failed:** pending local run: `pytest backend/tests` after `pip install -r backend/requirements.txt`.
+- **Still needs work:** live Gemini/Whisper provider wiring; GenASL adapter (M4); ISL Mixamo player (M7); Braille/Morse (M5); more adapters (M6); production hardening (M8).
+- **Browser verification:** not required for this scaffold milestone.
