@@ -1,7 +1,7 @@
-import { test } from "node:test";
-import assert from "node:assert/strict";
-import { TYPES, isGesturaMessage, envelope } from "../extension/shared/messages.js";
-import { interpretCaptions, DEFAULT_BASE_URL } from "../extension/shared/backend.js";
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const { TYPES, isGesturaMessage } = require("../extension/shared/messages.js");
+const { interpretCaptions, DEFAULT_BASE_URL } = require("../extension/shared/backend.js");
 
 test("exposes the interpret captions message type", () => {
   assert.equal(TYPES.INTERPRET_CAPTIONS, "GESTURA/INTERPRET_CAPTIONS");
