@@ -221,7 +221,50 @@ class RecognitionService:
             ]
 
             best = top_k[0]
+
+            # Spatial correction for open-hand signs:
+            # "hello" is signed at forehead/temple height (wrist near brow/eye level)
+            # "goodbye" is signed at chest/mid-body height
+            if best["label"].lower() in ("hello", "goodbye") and len(sequence) > 0:
+                avg_rel_wrist_y = sum(f[64] for f in sequence) / len(sequence)
+                face_frames = [f for f in sequence if len(f) > 178 and f[178] > 0.5]
+                face_present = len(face_frames) > 0
+                avg_wrist_to_nose_y = (
+                    sum(f[176] for f in face_frames) / len(face_frames)
+                    if face_present
+                    else avg_rel_wrist_y
+                )
+
+                # Wrist at temple/forehead/eye level (<= 0.16 relative to nose or <= 0.0 in frame)
+                is_temple_height = (face_present and avg_wrist_to_nose_y <= 0.16) or (
+                    not face_present and avg_rel_wrist_y <= 0.0
+                )
+                # Wrist at chest level (> 0.22 relative to nose or > 0.06 in frame)
+                is_chest_height = (face_present and avg_wrist_to_nose_y > 0.22) or (
+                    not face_present and avg_rel_wrist_y > 0.06
+                )
+
+                if is_temple_height and best["label"].lower() == "goodbye":
+                    # Correct misclassification from goodbye to hello
+                    for item in top_k:
+                        if item["label"].lower() == "hello":
+                            item["confidence"] = max(item["confidence"], 0.95)
+                        elif item["label"].lower() == "goodbye":
+                            item["confidence"] = min(item["confidence"], 0.05)
+                    top_k.sort(key=lambda x: x["confidence"], reverse=True)
+                    best = top_k[0]
+                elif is_chest_height and best["label"].lower() == "hello":
+                    # Correct misclassification from hello to goodbye
+                    for item in top_k:
+                        if item["label"].lower() == "goodbye":
+                            item["confidence"] = max(item["confidence"], 0.95)
+                        elif item["label"].lower() == "hello":
+                            item["confidence"] = min(item["confidence"], 0.05)
+                    top_k.sort(key=lambda x: x["confidence"], reverse=True)
+                    best = top_k[0]
+
             threshold = float(metadata.get("unknownThreshold", 0.55))
+
             is_neutral = best["label"].lower() in ("main", "unknown", "neutral")
             unknown = is_neutral or (best["confidence"] < threshold)
 
