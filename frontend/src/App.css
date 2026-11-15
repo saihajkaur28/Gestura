@@ -3572,3 +3572,525 @@
   }
 }
 
+/* ============================================================
+   HIGH CONTRAST / ELDERLY ACCESSIBILITY MODE STYLES
+   ============================================================ */
+
+/* ---------- Accessibility Toggle Button ---------- */
+.accessibility-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: var(--shadow-xs);
+  white-space: nowrap;
+}
+
+.accessibility-toggle-btn:hover {
+  border-color: var(--accent);
+  background: var(--mint);
+  color: var(--text);
+}
+
+.accessibility-toggle-btn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.accessibility-toggle-btn.compact {
+  padding: 5px 10px;
+  font-size: 12.5px;
+}
+
+.accessibility-toggle-btn.active {
+  background: #0a5238;
+  color: #ffffff;
+  border-color: #0a5238;
+  box-shadow: 0 0 0 2px rgba(10, 82, 56, 0.25);
+}
+
+:root[data-theme='dark'] .accessibility-toggle-btn.active {
+  background: #34d399;
+  color: #000000;
+  border-color: #34d399;
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.35);
+}
+
+.accessibility-toggle-btn .toggle-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.accessibility-toggle-btn .toggle-status-badge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all var(--transition);
+}
+
+.accessibility-toggle-btn .toggle-status-badge.on {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+:root[data-theme='dark'] .accessibility-toggle-btn.active .toggle-status-badge.on {
+  background: rgba(0, 0, 0, 0.2);
+  color: #000000;
+}
+
+.accessibility-toggle-btn .toggle-status-badge.off {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--muted);
+}
+
+:root[data-theme='dark'] .accessibility-toggle-btn .toggle-status-badge.off {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--muted);
+}
+
+/* ---------- Global High Contrast Overrides (body.high-contrast) ---------- */
+
+/* 1. Global Touch Targets, Typography, and Focus */
+.high-contrast {
+  letter-spacing: 0.01em;
+}
+
+.high-contrast * {
+  text-shadow: none !important;
+}
+
+.high-contrast :focus-visible {
+  outline: 3px solid var(--accent) !important;
+  outline-offset: 3px !important;
+}
+
+/* 2. Headings & Text Enlargement (20–30% larger, bolder) */
+.high-contrast h1,
+.high-contrast .page-header h1 {
+  font-size: 2.3rem !important;
+  font-weight: 850 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--text) !important;
+}
+
+.high-contrast h2 {
+  font-size: 1.8rem !important;
+  font-weight: 800 !important;
+  line-height: 1.3 !important;
+  color: var(--text) !important;
+}
+
+.high-contrast h3 {
+  font-size: 1.45rem !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+}
+
+.high-contrast p,
+.high-contrast .page-subtitle {
+  font-size: 1.18rem !important;
+  font-weight: 550 !important;
+  line-height: 1.7 !important;
+  color: var(--text) !important;
+}
+
+.high-contrast .topbar-title {
+  font-size: 1.55rem !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+}
+
+.high-contrast .topbar-note {
+  font-size: 1.05rem !important;
+  font-weight: 650 !important;
+  color: var(--text) !important;
+}
+
+/* 3. High-Contrast Buttons & Elderly-Friendly Touch Targets */
+.high-contrast button,
+.high-contrast .btn,
+.high-contrast .playback-btn,
+.high-contrast .nav-item,
+.high-contrast .view-mode-tab,
+.high-contrast .avatar-pill-btn,
+.high-contrast .sample-chip {
+  min-height: 48px;
+  font-size: 1.08rem !important;
+  font-weight: 750 !important;
+  border-width: 2px !important;
+  letter-spacing: 0.02em;
+}
+
+.high-contrast .btn-primary {
+  background: var(--text) !important;
+  color: var(--surface) !important;
+  border: 2.5px solid var(--text) !important;
+  box-shadow: none !important;
+}
+
+.high-contrast .btn-primary:hover {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  border-color: var(--accent) !important;
+}
+
+.high-contrast .btn-secondary,
+.high-contrast .icon-btn {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 2px solid var(--text) !important;
+  box-shadow: none !important;
+}
+
+.high-contrast .btn-secondary:hover,
+.high-contrast .icon-btn:hover {
+  background: var(--mint) !important;
+  color: var(--text) !important;
+  border-color: var(--text) !important;
+}
+
+.high-contrast .accessibility-toggle-btn {
+  min-height: 48px;
+  padding: 10px 18px;
+  font-size: 1.05rem;
+  font-weight: 750;
+  border: 2.5px solid var(--text);
+}
+
+.high-contrast .theme-toggle {
+  min-height: 48px;
+  min-width: 48px;
+  border: 2px solid var(--text) !important;
+}
+
+.high-contrast .logout-btn {
+  min-height: 48px;
+  padding: 10px 18px;
+  font-size: 1.05rem !important;
+  font-weight: 750 !important;
+  border: 2px solid var(--error) !important;
+  color: var(--error) !important;
+}
+
+/* 4. Large Form Controls & Inputs */
+.high-contrast input,
+.high-contrast textarea,
+.high-contrast select,
+.high-contrast .auth-input,
+.high-contrast .search-input {
+  min-height: 52px !important;
+  font-size: 1.15rem !important;
+  font-weight: 600 !important;
+  border: 2.5px solid var(--text) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  padding: 14px 18px !important;
+}
+
+.high-contrast input:focus,
+.high-contrast textarea:focus,
+.high-contrast select:focus,
+.high-contrast .auth-input:focus {
+  border-color: var(--accent) !important;
+  outline: 3px solid var(--accent) !important;
+  outline-offset: 2px !important;
+}
+
+.high-contrast label,
+.high-contrast .auth-label {
+  font-size: 1.12rem !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+  margin-bottom: 8px !important;
+  display: block;
+}
+
+/* 5. Clearly Defined Cards, Panels, and Badges */
+.high-contrast .card,
+.high-contrast .stage-card,
+.high-contrast .auth-card,
+.high-contrast .landing-feature-card,
+.high-contrast .quick-stat-card,
+.high-contrast .hero-action-card {
+  border: 2.5px solid var(--border) !important;
+  box-shadow: none !important;
+  background: var(--surface) !important;
+}
+
+.high-contrast .status-pill,
+.high-contrast .badge,
+.high-contrast .asl-gloss-badge,
+.high-contrast .asl-category-badge {
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+  padding: 6px 14px !important;
+  border: 2px solid var(--border) !important;
+  letter-spacing: 0.03em;
+}
+
+/* 6. Sidebar & Nav Enhancements */
+.high-contrast .app-shell {
+  grid-template-columns: 290px minmax(0, 1fr) !important;
+}
+
+.high-contrast .sidebar {
+  border-right: 2.5px solid var(--border) !important;
+  padding: 28px 18px;
+}
+
+.high-contrast .brand-name {
+  font-size: 1.35rem !important;
+  font-weight: 900 !important;
+  color: var(--text) !important;
+}
+
+.high-contrast .brand-sub {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+}
+
+.high-contrast .nav-item {
+  padding: 13px 18px !important;
+  font-size: 1.12rem !important;
+  font-weight: 750 !important;
+  border-radius: var(--radius-sm) !important;
+  border: 2px solid transparent !important;
+  color: var(--text) !important;
+}
+
+.high-contrast .nav-item:hover {
+  background: var(--mint) !important;
+  border-color: var(--border) !important;
+}
+
+.high-contrast .nav-item.active {
+  background: var(--mint) !important;
+  border: 2.5px solid var(--border) !important;
+  color: var(--text) !important;
+  font-weight: 850 !important;
+}
+
+.high-contrast .nav-item svg,
+.high-contrast .brand-mark svg {
+  width: 22px !important;
+  height: 22px !important;
+  stroke-width: 2.4 !important;
+}
+
+/* 7. Sign to Text (Live ASL Camera Recognition) */
+.high-contrast .sentence-display,
+.high-contrast .recognition-panel .sentence-box,
+.high-contrast .live-transcription-box {
+  min-height: 90px !important;
+  font-size: 2rem !important;
+  font-weight: 850 !important;
+  border: 3px solid var(--border) !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  padding: 18px 24px !important;
+  line-height: 1.4 !important;
+}
+
+.high-contrast .video-frame {
+  border: 3px solid var(--border) !important;
+}
+
+.high-contrast .camera-overlay-badge {
+  font-size: 1.05rem !important;
+  font-weight: 800 !important;
+  padding: 6px 14px !important;
+  border: 2px solid var(--border) !important;
+}
+
+/* 8. Text to Sign (ASL Video & 3D Avatar Stage) */
+.high-contrast .avatar-controls-strip {
+  border-bottom: 2px solid var(--border) !important;
+  padding-bottom: 16px;
+  gap: 16px;
+}
+
+.high-contrast .avatar-switcher-label {
+  font-size: 1.1rem !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+}
+
+.high-contrast .avatar-pill-btn {
+  padding: 10px 18px !important;
+  border: 2px solid var(--border) !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.high-contrast .avatar-pill-btn.active {
+  background: var(--text) !important;
+  color: var(--surface) !important;
+  border: 3px solid var(--text) !important;
+  font-weight: 850 !important;
+}
+
+.high-contrast .avatar-pill-btn.active .avatar-tag-badge {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--text) !important;
+}
+
+.high-contrast .view-mode-tabs {
+  gap: 8px;
+}
+
+.high-contrast .view-mode-tab {
+  padding: 10px 18px !important;
+  border: 2px solid var(--border) !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.high-contrast .view-mode-tab.active {
+  background: var(--text) !important;
+  color: var(--surface) !important;
+  border: 3px solid var(--text) !important;
+  font-weight: 850 !important;
+}
+
+.high-contrast .playback-bar {
+  gap: 12px;
+  padding: 16px 0;
+  border-top: 2px solid var(--border) !important;
+}
+
+.high-contrast .playback-btn {
+  padding: 12px 22px !important;
+  border: 2.5px solid var(--border) !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.high-contrast .playback-btn.primary {
+  background: var(--text) !important;
+  color: var(--surface) !important;
+  border: 3px solid var(--text) !important;
+  font-weight: 850 !important;
+}
+
+.high-contrast .sample-chip {
+  padding: 10px 18px !important;
+  border: 2px solid var(--border) !important;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+}
+
+.high-contrast .side-by-side-stage {
+  border: 2.5px solid var(--border) !important;
+}
+
+.high-contrast .character-tag-pill,
+.high-contrast .sync-status-pill {
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
+  border-width: 2px !important;
+  padding: 6px 12px !important;
+}
+
+.high-contrast .avatar-motion-desc {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  border-width: 2px !important;
+}
+
+/* 9. Authentication Page (Auth.tsx) */
+.high-contrast .auth-card {
+  border: 3px solid var(--border) !important;
+  padding: 38px 34px !important;
+}
+
+.high-contrast .auth-title {
+  font-size: 2.2rem !important;
+  font-weight: 850 !important;
+}
+
+.high-contrast .auth-subtitle {
+  font-size: 1.15rem !important;
+  color: var(--text) !important;
+}
+
+.high-contrast .auth-submit-btn,
+.high-contrast .auth-google-btn {
+  min-height: 54px !important;
+  font-size: 1.18rem !important;
+  font-weight: 800 !important;
+  border: 2.5px solid var(--text) !important;
+}
+
+.high-contrast .auth-error-alert,
+.high-contrast .auth-success-alert {
+  font-size: 1.1rem !important;
+  font-weight: 750 !important;
+  border-width: 2.5px !important;
+  padding: 16px 20px !important;
+}
+
+/* 10. Landing Page (Landing.tsx) */
+.high-contrast .landing-header {
+  border-bottom: 2.5px solid var(--border) !important;
+  padding: 18px 40px !important;
+}
+
+.high-contrast .landing-brand-name {
+  font-size: 1.4rem !important;
+  font-weight: 900 !important;
+  color: var(--text) !important;
+}
+
+.high-contrast .landing-nav a {
+  font-size: 1.15rem !important;
+  font-weight: 750 !important;
+  color: var(--text) !important;
+}
+
+.high-contrast .hero-title {
+  font-size: 3.2rem !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+}
+
+.high-contrast .hero-sub {
+  font-size: 1.35rem !important;
+  color: var(--text) !important;
+  line-height: 1.6 !important;
+}
+
+.high-contrast .landing-feature-card {
+  border: 2.5px solid var(--border) !important;
+  padding: 28px !important;
+}
+
+.high-contrast .landing-feature-card h3 {
+  font-size: 1.5rem !important;
+}
+
+.high-contrast .landing-feature-card p {
+  font-size: 1.12rem !important;
+  color: var(--text) !important;
+}
+

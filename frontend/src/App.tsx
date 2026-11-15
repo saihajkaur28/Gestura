@@ -4,12 +4,14 @@ import type { LucideIcon } from 'lucide-react'
 import './App.css'
 import BackendStatus from './components/BackendStatus'
 import ThemeToggle from './components/ThemeToggle'
+import AccessibilityToggle from './components/AccessibilityToggle'
 import Dashboard from './pages/Dashboard'
 import Landing from './pages/Landing'
 import SignToText from './pages/SignToText'
 import TextToSign from './pages/TextToSign'
 import Auth from './pages/Auth'
 import { useTheme } from './hooks/useTheme'
+import { useHighContrast } from './hooks/useHighContrast'
 import { useAuth } from './hooks/useAuth'
 import { NAV_ITEMS } from './navigation'
 import type { Page } from './navigation'
@@ -32,6 +34,7 @@ export default function App() {
   const [view, setView] = useState<View>('landing')
   const [authPrompt, setAuthPrompt] = useState<string | null>(null)
   const { theme, toggleTheme } = useTheme()
+  const { highContrast, toggleHighContrast } = useHighContrast()
   const { user, loading, isAuthenticated, signOut } = useAuth()
 
   // Route protection: redirect unauthenticated users if on protected pages
@@ -71,6 +74,8 @@ export default function App() {
         }}
         theme={theme}
         onToggleTheme={toggleTheme}
+        highContrast={highContrast}
+        onToggleHighContrast={toggleHighContrast}
       />
     )
   }
@@ -91,6 +96,8 @@ export default function App() {
         initialMode="login"
         theme={theme}
         onToggleTheme={toggleTheme}
+        highContrast={highContrast}
+        onToggleHighContrast={toggleHighContrast}
         onSuccess={() => {
           setAuthPrompt(null)
           setView('dashboard')
@@ -169,6 +176,11 @@ export default function App() {
           <span className="topbar-title">{PAGE_TITLES[page]}</span>
           <div className="topbar-actions">
             <span className="topbar-note">American Sign Language</span>
+            <AccessibilityToggle
+              highContrast={highContrast}
+              onToggle={toggleHighContrast}
+              showFullLabel={false}
+            />
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
             {isAuthenticated ? (
               <button

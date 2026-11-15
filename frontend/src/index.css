@@ -130,6 +130,108 @@
   --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
 
+/* ============================================================
+   HIGH CONTRAST & ACCESSIBILITY MODE (WCAG AAA 7:1+)
+   ============================================================ */
+
+/* Light Theme + High Contrast (Crisp Pure Contrast) */
+:root[data-high-contrast='true'] {
+  color-scheme: light;
+
+  --color-primary: #0a5238;
+  --color-secondary: #06402b;
+  --color-success: #0a5238;
+
+  --color-background: #ffffff;
+  --color-surface: #ffffff;
+  --color-accent: #e2f4ea;
+
+  --color-highlight: #e09900;
+
+  --color-heading: #000000;
+  --color-text: #0e1612;
+
+  --color-border: #000000;
+  --color-primary-hover: #032b1c;
+  --color-focus: #000000;
+
+  --sage: #0a5238;
+  --sage-strong: #032b1c;
+  --teal: #06402b;
+  --ivory: #ffffff;
+  --surface: #ffffff;
+  --charcoal: #000000;
+  --muted-grey: #0e1612;
+  --line: #000000;
+  --mint: #e2f4ea;
+
+  --bg: #ffffff;
+  --bg-elevated: #ffffff;
+  --panel: #ffffff;
+  --panel-2: #f0faf4;
+  --border: #000000;
+  --text: #000000;
+  --muted: #111a15;
+  --accent: #0a5238;
+  --accent-2: #06402b;
+  --ok: #0a5238;
+  --warn: #7a4600;
+  --error: #9e0000;
+
+  font-size: 20px;
+  line-height: 1.7;
+  font-weight: 500;
+}
+
+/* Dark Theme + High Contrast (Pitch Black OLED + Vivid Crisp White) */
+:root[data-theme='dark'][data-high-contrast='true'] {
+  color-scheme: dark;
+
+  --color-primary: #34d399;
+  --color-secondary: #6ee7b7;
+  --color-success: #4eedaa;
+
+  --color-background: #000000;
+  --color-surface: #0a110e;
+  --color-accent: #11281e;
+
+  --color-highlight: #ffca3a;
+
+  --color-heading: #ffffff;
+  --color-text: #f2faf6;
+
+  --color-border: #4eedaa;
+  --color-primary-hover: #a7f3d0;
+  --color-focus: #4eedaa;
+
+  --sage: #34d399;
+  --sage-strong: #a7f3d0;
+  --teal: #6ee7b7;
+  --ivory: #000000;
+  --surface: #0a110e;
+  --charcoal: #ffffff;
+  --muted-grey: #f2faf6;
+  --line: #4eedaa;
+  --mint: #11281e;
+
+  --bg: #000000;
+  --bg-elevated: #0a110e;
+  --panel: #0a110e;
+  --panel-2: #11281e;
+  --border: #4eedaa;
+  --text: #ffffff;
+  --muted: #e6f5ed;
+  --accent: #34d399;
+  --accent-2: #6ee7b7;
+  --ok: #4eedaa;
+  --warn: #ffca3a;
+  --error: #ff6b6b;
+
+  font-size: 20px;
+  line-height: 1.7;
+  font-weight: 500;
+}
+
 * {
   box-sizing: border-box;
 }

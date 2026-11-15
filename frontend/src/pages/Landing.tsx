@@ -13,6 +13,7 @@ import {
   Waves,
 } from 'lucide-react'
 import ThemeToggle from '../components/ThemeToggle'
+import AccessibilityToggle from '../components/AccessibilityToggle'
 import type { Theme } from '../hooks/useTheme'
 import type { Page } from '../navigation'
 
@@ -24,6 +25,8 @@ interface LandingProps {
   onSignOut?: () => void
   theme: Theme
   onToggleTheme: () => void
+  highContrast?: boolean
+  onToggleHighContrast?: () => void
 }
 
 export default function Landing({
@@ -34,6 +37,8 @@ export default function Landing({
   onSignOut,
   theme,
   onToggleTheme,
+  highContrast = false,
+  onToggleHighContrast,
 }: LandingProps) {
   return (
     <div className="landing">
@@ -52,6 +57,13 @@ export default function Landing({
         </nav>
 
         <div className="landing-actions">
+          {onToggleHighContrast && (
+            <AccessibilityToggle
+              highContrast={highContrast}
+              onToggle={onToggleHighContrast}
+              showFullLabel={false}
+            />
+          )}
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
           {isAuthenticated ? (
             <>

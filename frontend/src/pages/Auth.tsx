@@ -16,6 +16,7 @@ import {
   User,
 } from 'lucide-react'
 import ThemeToggle from '../components/ThemeToggle'
+import AccessibilityToggle from '../components/AccessibilityToggle'
 import { useAuth } from '../hooks/useAuth'
 import type { Theme } from '../hooks/useTheme'
 
@@ -25,6 +26,8 @@ interface AuthProps {
   initialMode?: AuthMode
   theme: Theme
   onToggleTheme: () => void
+  highContrast?: boolean
+  onToggleHighContrast?: () => void
   onSuccess: () => void
   onBackToHome: () => void
   promptMessage?: string | null
@@ -34,6 +37,8 @@ export default function Auth({
   initialMode = 'login',
   theme,
   onToggleTheme,
+  highContrast = false,
+  onToggleHighContrast,
   onSuccess,
   onBackToHome,
   promptMessage = null,
@@ -198,6 +203,13 @@ export default function Auth({
         </button>
 
         <div className="auth-topbar-actions">
+          {onToggleHighContrast && (
+            <AccessibilityToggle
+              highContrast={highContrast}
+              onToggle={onToggleHighContrast}
+              showFullLabel={false}
+            />
+          )}
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
           <button type="button" className="btn btn-secondary auth-home-btn" onClick={onBackToHome}>
             <Home size={15} strokeWidth={1.8} />
