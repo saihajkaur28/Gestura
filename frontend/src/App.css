@@ -5206,9 +5206,11 @@
 /* 3-Section Layout Grid */
 .asl-player-layout-3col {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(290px, 0.95fr) 275px;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.95fr) minmax(240px, 310px);
   gap: 22px;
   align-items: start;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 1240px) {
@@ -5226,18 +5228,27 @@
   }
 }
 
-/* Alphabet Navigation Sidebar on the Right */
+/* Dynamic Category-Based Navigation Sidebar on the Right */
 .asl-alphabet-sidebar {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .asl-alphabet-nav-card {
-  padding: 20px 16px;
+  padding: 18px 14px;
   background: var(--surface);
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .asl-alphabet-nav-header {
@@ -5245,15 +5256,18 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--border);
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .asl-alpha-header-title {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .asl-alpha-header-title h3 {
@@ -5262,34 +5276,88 @@
   margin: 0;
   color: var(--charcoal);
   letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
 .asl-alpha-nav-hint {
   font-size: 11px;
   font-weight: 650;
   color: var(--muted);
+  white-space: nowrap;
 }
 
+/* In-Panel Category Switcher Pills */
+.asl-nav-category-pills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--ivory);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  margin-bottom: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.asl-nav-pill {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 4px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 750;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.asl-nav-pill:hover {
+  color: var(--charcoal);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.asl-nav-pill.active {
+  background: var(--surface);
+  color: var(--sage-strong);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Alphabet Grid (Contained, responsive, zero overflow) */
 .asl-alphabet-compact-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .asl-alpha-btn {
-  aspect-ratio: 1;
-  min-height: 42px;
-  display: grid;
-  place-items: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1.5px solid var(--border);
-  border-radius: 8px;
+  border-radius: 7px;
   background: var(--surface);
   color: var(--charcoal);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 850;
   cursor: pointer;
   transition: all 0.15s ease;
   padding: 0;
+  box-sizing: border-box;
 }
 
 .asl-alpha-btn:hover {
@@ -5305,6 +5373,93 @@
   box-shadow: 0 2px 6px rgba(10, 82, 56, 0.3);
 }
 
+/* Dynamic Common Words & Phrases Lists in Nav Panel */
+.asl-nav-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 440px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.asl-nav-list-item {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--charcoal);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  box-sizing: border-box;
+  gap: 8px;
+}
+
+.asl-nav-list-item:hover {
+  background: var(--mint);
+  border-color: var(--sage);
+  transform: translateX(2px);
+}
+
+.asl-nav-list-item.active {
+  background: var(--sage);
+  color: #ffffff;
+  border-color: var(--sage-strong);
+  box-shadow: 0 2px 6px rgba(10, 82, 56, 0.25);
+}
+
+.asl-nav-item-title {
+  font-size: 13.5px;
+  font-weight: 750;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.asl-nav-item-badge {
+  font-size: 10px;
+  font-weight: 750;
+  padding: 2px 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.asl-nav-list-item .badge-avail {
+  background: var(--mint);
+  color: var(--sage-strong);
+}
+
+.asl-nav-list-item.active .badge-avail {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.asl-nav-list-item .badge-soon {
+  background: var(--ivory);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.asl-nav-list-item.active .badge-soon {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
 .asl-alpha-nav-footer {
   margin-top: 14px;
   padding-top: 12px;
@@ -5312,12 +5467,15 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .asl-alpha-status-info {
   font-size: 12px;
   color: var(--muted);
   line-height: 1.4;
+  word-break: break-word;
 }
 
 .asl-alpha-status-info strong {
@@ -5433,24 +5591,77 @@
 
 .high-contrast .asl-alphabet-nav-card {
   border: 3px solid var(--border) !important;
+  padding: 16px 12px !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
 }
 
 .high-contrast .asl-alpha-header-title h3 {
-  font-size: 1.4rem !important;
+  font-size: 1.35rem !important;
   font-weight: 900 !important;
 }
 
+.high-contrast .asl-nav-category-pills {
+  border: 2.5px solid var(--border) !important;
+  background: var(--surface) !important;
+}
+
+.high-contrast .asl-nav-pill {
+  font-size: 1.05rem !important;
+  font-weight: 850 !important;
+  color: var(--text) !important;
+}
+
+.high-contrast .asl-nav-pill.active {
+  background: var(--mint) !important;
+  color: var(--text) !important;
+  border: 2px solid var(--border) !important;
+}
+
+.high-contrast .asl-alphabet-compact-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 4px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
 .high-contrast .asl-alpha-btn {
-  font-size: 1.25rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  aspect-ratio: 1 / 1 !important;
+  font-size: 1.15rem !important;
   font-weight: 900 !important;
   border: 2px solid var(--border) !important;
-  min-height: 48px !important;
+  box-sizing: border-box !important;
 }
 
 .high-contrast .asl-alpha-btn.active {
   background: var(--mint) !important;
   color: var(--text) !important;
+  border: 2.5px solid var(--border) !important;
+}
+
+.high-contrast .asl-nav-list-item {
+  font-size: 1.1rem !important;
+  font-weight: 850 !important;
+  border: 2.5px solid var(--border) !important;
+  padding: 12px 14px !important;
+  box-sizing: border-box !important;
+}
+
+.high-contrast .asl-nav-list-item.active {
+  background: var(--mint) !important;
+  color: var(--text) !important;
   border: 3px solid var(--border) !important;
+}
+
+.high-contrast .asl-nav-item-title {
+  font-size: 1.15rem !important;
+  font-weight: 850 !important;
+  color: var(--text) !important;
 }
 
 .high-contrast .asl-unavailable-card {

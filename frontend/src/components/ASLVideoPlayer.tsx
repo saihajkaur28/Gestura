@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   BookOpen,
   Check,
-  ChevronDown,
   Clock,
   Gauge,
   MessageSquare,
@@ -16,6 +15,10 @@ import {
   VolumeX,
 } from 'lucide-react'
 import type { ASLVideoItem } from '../data/learnVocabulary'
+
+export type { ASLVideoItem }
+
+type NavigationCategory = 'Alphabet' | 'Common Words' | 'Common Phrases'
 
 interface ASLVideoPlayerProps {
   item: ASLVideoItem
@@ -35,6 +38,12 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
+function normalizeCategory(category: string): NavigationCategory {
+  if (category === 'Common Phrases' || category === 'Common Sentences') return 'Common Phrases'
+  if (category === 'Common Words') return 'Common Words'
+  return 'Alphabet'
+}
+
 export default function ASLVideoPlayer({
   item,
   onSelectItem,
@@ -44,7 +53,10 @@ export default function ASLVideoPlayer({
   commonPhrases,
 }: ASLVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const dropdownRef = useRef<HTMLDivElement | null>(null)
+
+  const [currentCategory, setCurrentCategory] = useState<NavigationCategory>(() =>
+    normalizeCategory(item.category),
+  )
 
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -53,32 +65,13 @@ export default function ASLVideoPlayer({
   const [isMuted, setIsMuted] = useState(true)
   const [isLooping, setIsLooping] = useState(false)
   const [playbackError, setPlaybackError] = useState<string | null>(null)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const isUnavailable = item.status === 'unavailable' || !item.videoUrl
 
-  // Close dropdown on outside click or escape
+  // Keep navigation category in sync when item changes
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false)
-      }
-    }
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setIsDropdownOpen(false)
-      }
-    }
-
-    if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      document.addEventListener('keydown', handleKeyDown)
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [isDropdownOpen])
+    setCurrentCategory(normalizeCategory(item.category))
+  }, [item])
 
   // Reset and update video player when the selected item changes
   useEffect(() => {
@@ -170,14 +163,29 @@ export default function ASLVideoPlayer({
     })
   }
 
+  // Handle switching category explicitly via the three tabs
+  const handleCategorySwitch = (category: NavigationCategory) => {
+    setCurrentCategory(category)
+
+    // Select the first item in the newly selected category if current item is not in it
+    if (category === 'Alphabet' && item.category !== 'Alphabet') {
+      onSelectItem(alphabetItems[0])
+    } else if (category === 'Common Words' && item.category !== 'Common Words') {
+      onSelectItem(commonWords[0])
+    } else if (category === 'Common Phrases' && item.category !== 'Common Phrases') {
+      onSelectItem(commonPhrases[0])
+    }
+  }
+
+  // Handle selecting an individual item within current category
   const handleItemSelect = (selected: ASLVideoItem) => {
-    setIsDropdownOpen(false)
+    setCurrentCategory(normalizeCategory(selected.category))
     onSelectItem(selected)
   }
 
-  // Determine if the current item is an alphabet letter
-  const isAlphabetItem = item.category === 'Alphabet'
-  const currentLetter = isAlphabetItem ? item.title.toUpperCase() : null
+  const isAlphabetActive = currentCategory === 'Alphabet'
+  const isWordsActive = currentCategory === 'Common Words'
+  const isPhrasesActive = currentCategory === 'Common Phrases'
 
   return (
     <div className="asl-player-container">
@@ -196,117 +204,19 @@ export default function ASLVideoPlayer({
 
           <div className="asl-player-title-box">
             <div className="asl-title-row">
-              <span className={`badge ${isAlphabetItem ? 'badge-ok' : 'badge-category'}`}>
+              <span className={`badge ${item.category === 'Alphabet' ? 'badge-ok' : 'badge-category'}`}>
                 {item.category}
               </span>
               <h1 className="asl-player-title">
-                {isAlphabetItem ? `Fingerspelling: Letter ${item.title}` : item.title}
+                {item.category === 'Alphabet' ? `Fingerspelling: Letter ${item.title}` : item.title}
               </h1>
             </div>
             {item.subtitle && <span className="asl-player-subtitle">{item.subtitle}</span>}
           </div>
         </div>
-
-        {/* Common Words & Phrases Dropdown Selector */}
-        <div className="asl-header-right" ref={dropdownRef}>
-          <div className="asl-dropdown-wrapper">
-            <button
-              type="button"
-              className="btn btn-secondary asl-dropdown-btn"
-              onClick={() => setIsDropdownOpen((prev) => !prev)}
-              aria-expanded={isDropdownOpen}
-              aria-haspopup="listbox"
-            >
-              <Sparkles size={16} className="text-sage" />
-              <span className="asl-dropdown-label">
-                {item.category === 'Alphabet' ? 'Words & Phrases' : item.title}
-              </span>
-              <ChevronDown
-                size={16}
-                className={`asl-dropdown-chevron ${isDropdownOpen ? 'rotated' : ''}`}
-              />
-            </button>
-
-            {isDropdownOpen && (
-              <div className="asl-dropdown-menu" role="listbox">
-                {/* Switch back to Alphabet shortcut */}
-                <div className="asl-dropdown-section-header">
-                  <BookOpen size={14} />
-                  <span>Manual Alphabet</span>
-                </div>
-                <button
-                  type="button"
-                  className={`asl-dropdown-item ${isAlphabetItem ? 'selected' : ''}`}
-                  onClick={() => handleItemSelect(alphabetItems[0])}
-                >
-                  <span className="asl-item-name">Alphabet Grid (A–Z)</span>
-                  <span className="badge badge-ok asl-mini-badge">26 Letters</span>
-                </button>
-
-                {/* Common Words Group */}
-                <div className="asl-dropdown-section-header">
-                  <Sparkles size={14} />
-                  <span>Common Words (12)</span>
-                </div>
-                <div className="asl-dropdown-list">
-                  {commonWords.map((word) => {
-                    const isSelected = item.id === word.id
-                    const isAvail = word.status === 'available'
-                    return (
-                      <button
-                        key={word.id}
-                        type="button"
-                        className={`asl-dropdown-item ${isSelected ? 'selected' : ''}`}
-                        onClick={() => handleItemSelect(word)}
-                        role="option"
-                        aria-selected={isSelected}
-                      >
-                        <span className="asl-item-name">{word.title}</span>
-                        {isAvail ? (
-                          <span className="asl-avail-dot" title="Verified Video Available" />
-                        ) : (
-                          <span className="asl-unavail-badge">Soon</span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-
-                {/* Common Phrases Group */}
-                <div className="asl-dropdown-section-header">
-                  <MessageSquare size={14} />
-                  <span>Common Phrases (10)</span>
-                </div>
-                <div className="asl-dropdown-list">
-                  {commonPhrases.map((phrase) => {
-                    const isSelected = item.id === phrase.id
-                    const isAvail = phrase.status === 'available'
-                    return (
-                      <button
-                        key={phrase.id}
-                        type="button"
-                        className={`asl-dropdown-item ${isSelected ? 'selected' : ''}`}
-                        onClick={() => handleItemSelect(phrase)}
-                        role="option"
-                        aria-selected={isSelected}
-                      >
-                        <span className="asl-item-name">{phrase.title}</span>
-                        {isAvail ? (
-                          <span className="asl-avail-dot" title="Verified Video Available" />
-                        ) : (
-                          <span className="asl-unavail-badge">Soon</span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
 
-      {/* Main 3-Section Layout: Video Viewport + Sign Details + Alphabet Navigation Panel */}
+      {/* Main 3-Section Layout: Video Viewport + Sign Details + Dynamic Navigation Panel */}
       <div className="asl-player-layout-3col">
         {/* SECTION 1: Video Viewport & Playback Controls */}
         <div className="asl-player-viewport-card">
@@ -322,13 +232,13 @@ export default function ASLVideoPlayer({
                   recording and verification pipeline.
                 </p>
                 <p className="asl-unavailable-subtext">
-                  Please review the handshape and movement breakdown in Sign Details, or practice the
-                  letters in the Alphabet panel on the right.
+                  Review the movement and handshape breakdown in Sign Details, or select another item
+                  from the navigation panel.
                 </p>
                 <button
                   type="button"
                   className="btn btn-primary btn-sm"
-                  onClick={() => onSelectItem(alphabetItems[0])}
+                  onClick={() => handleCategorySwitch('Alphabet')}
                 >
                   <BookOpen size={15} />
                   Practice Alphabet (A–Z)
@@ -533,58 +443,165 @@ export default function ASLVideoPlayer({
           </div>
         </div>
 
-        {/* SECTION 3: Alphabet Navigation Panel (A–Z Grid on Right) */}
-        <aside className="asl-alphabet-sidebar" aria-label="Alphabet Navigation">
+        {/* SECTION 3: Dynamic Category-Based Navigation Panel */}
+        <aside className="asl-alphabet-sidebar" aria-label="Learning Navigation">
           <div className="card asl-alphabet-nav-card">
+            {/* Navigation Panel Header */}
             <div className="asl-alphabet-nav-header">
               <div className="asl-alpha-header-title">
-                <BookOpen size={17} className="text-sage" />
-                <h3>Alphabets (A-Z)</h3>
+                {isAlphabetActive && <BookOpen size={18} className="text-sage" />}
+                {isWordsActive && <Sparkles size={18} className="text-sage" />}
+                {isPhrasesActive && <MessageSquare size={18} className="text-sage" />}
+                <h3>
+                  {isAlphabetActive && 'Alphabets (A-Z)'}
+                  {isWordsActive && 'Common Words'}
+                  {isPhrasesActive && 'Common Phrases'}
+                </h3>
               </div>
-              <span className="asl-alpha-nav-hint">Click to switch</span>
+              <span className="asl-alpha-nav-hint">
+                {isAlphabetActive && '26 Letters'}
+                {isWordsActive && `${commonWords.length} Words`}
+                {isPhrasesActive && `${commonPhrases.length} Phrases`}
+              </span>
             </div>
 
-            <div className="asl-alphabet-compact-grid" role="group" aria-label="Alphabet letter selector">
-              {alphabetItems.map((letterItem) => {
-                const isSelected = currentLetter === letterItem.title.toUpperCase()
-                return (
-                  <button
-                    key={letterItem.id}
-                    type="button"
-                    className={`asl-alpha-btn ${isSelected ? 'active' : ''}`}
-                    onClick={() => handleItemSelect(letterItem)}
-                    aria-pressed={isSelected}
-                    aria-label={`Select letter ${letterItem.title}`}
-                  >
-                    <span className="asl-alpha-char">{letterItem.title}</span>
-                  </button>
-                )
-              })}
+            {/* In-Panel Category Switcher Pills */}
+            <div className="asl-nav-category-pills" role="tablist" aria-label="Navigation category selector">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={isAlphabetActive}
+                className={`asl-nav-pill ${isAlphabetActive ? 'active' : ''}`}
+                onClick={() => handleCategorySwitch('Alphabet')}
+              >
+                Alphabet
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={isWordsActive}
+                className={`asl-nav-pill ${isWordsActive ? 'active' : ''}`}
+                onClick={() => handleCategorySwitch('Common Words')}
+              >
+                Words
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={isPhrasesActive}
+                className={`asl-nav-pill ${isPhrasesActive ? 'active' : ''}`}
+                onClick={() => handleCategorySwitch('Common Phrases')}
+              >
+                Phrases
+              </button>
             </div>
 
-            {/* Quick Switch to Words / Active State Info */}
+            {/* DYNAMIC CONTENT 1: Alphabet Grid (Rendered ONLY when Alphabet is selected) */}
+            {isAlphabetActive && (
+              <div
+                className="asl-alphabet-compact-grid"
+                role="group"
+                aria-label="Alphabet letter selector"
+              >
+                {alphabetItems.map((letterItem) => {
+                  const isSelected = item.title.toUpperCase() === letterItem.title.toUpperCase()
+                  return (
+                    <button
+                      key={letterItem.id}
+                      type="button"
+                      className={`asl-alpha-btn ${isSelected ? 'active' : ''}`}
+                      onClick={() => handleItemSelect(letterItem)}
+                      aria-pressed={isSelected}
+                      aria-label={`Select letter ${letterItem.title}`}
+                    >
+                      <span className="asl-alpha-char">{letterItem.title}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* DYNAMIC CONTENT 2: Common Words List (Rendered ONLY when Common Words is selected) */}
+            {isWordsActive && (
+              <div
+                className="asl-nav-items-list"
+                role="listbox"
+                aria-label="Common words list"
+              >
+                {commonWords.map((word) => {
+                  const isSelected = item.id === word.id
+                  const isAvail = word.status === 'available'
+                  return (
+                    <button
+                      key={word.id}
+                      type="button"
+                      className={`asl-nav-list-item ${isSelected ? 'active' : ''}`}
+                      onClick={() => handleItemSelect(word)}
+                      role="option"
+                      aria-selected={isSelected}
+                    >
+                      <span className="asl-nav-item-title">{word.title}</span>
+                      {isAvail ? (
+                        <span className="asl-nav-item-badge badge-avail">Video</span>
+                      ) : (
+                        <span className="asl-nav-item-badge badge-soon">Soon</span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* DYNAMIC CONTENT 3: Common Phrases List (Rendered ONLY when Common Phrases is selected) */}
+            {isPhrasesActive && (
+              <div
+                className="asl-nav-items-list"
+                role="listbox"
+                aria-label="Common phrases list"
+              >
+                {commonPhrases.map((phrase) => {
+                  const isSelected = item.id === phrase.id
+                  const isAvail = phrase.status === 'available'
+                  return (
+                    <button
+                      key={phrase.id}
+                      type="button"
+                      className={`asl-nav-list-item ${isSelected ? 'active' : ''}`}
+                      onClick={() => handleItemSelect(phrase)}
+                      role="option"
+                      aria-selected={isSelected}
+                    >
+                      <span className="asl-nav-item-title">{phrase.title}</span>
+                      {isAvail ? (
+                        <span className="asl-nav-item-badge badge-avail">Video</span>
+                      ) : (
+                        <span className="asl-nav-item-badge badge-soon">Soon</span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Navigation Panel Footer: Always displays currently selected item */}
             <div className="asl-alpha-nav-footer">
               <div className="asl-alpha-status-info">
-                {isAlphabetItem ? (
+                {isAlphabetActive && (
                   <span>
-                    Current Letter: <strong>{item.title}</strong> (Fingerspelling)
+                    Selected: <strong>Letter {item.title}</strong> (Fingerspelling)
                   </span>
-                ) : (
+                )}
+                {isWordsActive && (
                   <span>
-                    Viewing: <strong>{item.title}</strong>
+                    Selected: <strong>{item.title}</strong>
+                  </span>
+                )}
+                {isPhrasesActive && (
+                  <span>
+                    Selected: <strong>{item.title}</strong>
                   </span>
                 )}
               </div>
-              {!isAlphabetItem && (
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm asl-return-alpha-btn"
-                  onClick={() => handleItemSelect(alphabetItems[0])}
-                >
-                  <BookOpen size={14} />
-                  Return to Letter A
-                </button>
-              )}
             </div>
           </div>
         </aside>
