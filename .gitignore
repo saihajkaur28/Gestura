@@ -1,14 +1,51 @@
-.venv/
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+*.tsbuildinfo
+
+# Python
 __pycache__/
 *.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Environment files (never commit secrets)
 .env
 .env.*
 !.env.example
-node_modules/
+
+# Generated MediaPipe runtime assets (restored by frontend scripts, see README)
+frontend/public/mediapipe/
+frontend/public/models/*
+!frontend/public/models/.gitkeep
+
+# Collected landmark datasets and trained model artefacts are personal/large.
+# They are produced locally and never committed.
+backend/data/*
+!backend/data/asl_catalog.json
+!backend/data/isl_sequences_bal.jsonl
+backend/models/
+
+# ISL recordings are private / large and provided separately.
+# The backend serves them at runtime from VIDEOS_DIR (default: ./videos).
+videos/*
+!videos/README.md
+
+# Logs / OS / editors
+*.log
 .DS_Store
 Thumbs.db
-logs/
-*.log
+.vscode/
+.idea/
+.env.local
+
+# Nested duplicate folder
+Gestura/
 
 # Nested vendor git metadata and secrets from upstream clones
 vendor/genasl/.git/
@@ -16,3 +53,4 @@ vendor/sign-kit/.git/
 vendor/genasl/cookies.txt
 vendor/genasl/logs/
 vendor/**/.venv/
+

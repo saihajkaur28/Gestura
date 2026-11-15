@@ -1,0 +1,16 @@
+# Gestura frontend
+
+React + Vite + TypeScript client for Gestura. See the repository root `README.md` for
+the full architecture, setup, environment variables, recognition pipeline, dataset collection and
+training instructions.
+
+Quick start:
+
+```powershell
+npm install
+Copy-Item .env.example .env.local
+npm run dev
+```
+
+`npm run dev` and `npm run build` automatically restore the generated MediaPipe assets via
+`scripts/fetch-model.mjs` and `scripts/copy-mediapipe-assets.mjs`.

@@ -1,0 +1,206 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=Manrope:wght@500..800&display=swap');
+
+:root {
+  color-scheme: light;
+
+  /* Gestura Brand Palette */
+  --color-primary: #89b6a5;
+  --color-secondary: #a0e8af;
+  --color-success: #3ab795;
+
+  /* Backgrounds */
+  --color-background: #edead0;
+  --color-surface: #ffffff;
+  --color-accent: #c9eddc;
+
+  /* Highlights */
+  --color-highlight: #ffcf56;
+
+  /* Typography */
+  --color-heading: #4c3b4d;
+  --color-text: #6a706e;
+
+  /* Borders */
+  --color-border: #d8ded5;
+
+  /* Interactive States */
+  --color-primary-hover: #82968c;
+  --color-focus: #3ab795;
+
+  /* Map existing app tokens to the brand palette */
+  --sage: var(--color-primary);
+  --sage-strong: var(--color-primary-hover);
+  --teal: var(--color-secondary);
+  --ivory: var(--color-background);
+  --surface: #fffdf7;
+  --charcoal: var(--color-heading);
+  --muted-grey: var(--color-text);
+  --line: var(--color-border);
+  --mint: var(--color-accent);
+
+  /* Semantic aliases used across the app */
+  --bg: linear-gradient(165deg, #edead0 0%, #e7ecd6 52%, #dceada 100%);
+  --bg-elevated: var(--surface);
+  --panel: var(--surface);
+  --panel-2: var(--color-accent);
+  --border: var(--color-border);
+  --text: var(--color-heading);
+  --muted: var(--color-text);
+  --accent: var(--color-primary);
+  --accent-2: var(--color-secondary);
+  --ok: var(--color-success);
+  --warn: #b08740;
+  --error: #b46b68;
+
+  --radius-sm: 12px;
+  --radius: 16px;
+  --radius-lg: 20px;
+
+  --shadow-xs: 0 1px 2px rgba(38, 51, 47, 0.04);
+  --shadow-sm: 0 4px 16px rgba(38, 51, 47, 0.05);
+  --shadow-md: 0 12px 32px rgba(38, 51, 47, 0.08);
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --transition: 200ms var(--ease);
+
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-size: 16.5px;
+  font-weight: 450;
+  line-height: 1.6;
+  color: var(--text);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Gestura Brand Palette — night */
+  --color-primary: #6fae96;
+  --color-secondary: #7fd99a;
+  --color-success: #4fc7a3;
+
+  /* Backgrounds */
+  --color-background: #0f1714;
+  --color-surface: #161f1c;
+  --color-accent: #1e3029;
+
+  /* Highlights */
+  --color-highlight: #ffcf56;
+
+  /* Typography */
+  --color-heading: #e6f0eb;
+  --color-text: #a7b6af;
+
+  /* Borders */
+  --color-border: #2b3b34;
+
+  /* Interactive States */
+  --color-primary-hover: #8ac4ad;
+  --color-focus: #6fae96;
+
+  /* Map existing app tokens to the night palette */
+  --sage: var(--color-primary);
+  --sage-strong: var(--color-primary-hover);
+  --teal: var(--color-secondary);
+  --ivory: #101916;
+  --surface: #161f1c;
+  --charcoal: var(--color-heading);
+  --muted-grey: var(--color-text);
+  --line: var(--color-border);
+  --mint: var(--color-accent);
+
+  /* Semantic aliases used across the app */
+  --bg: linear-gradient(165deg, #0d1512 0%, #0f1b16 52%, #0c1915 100%);
+  --bg-elevated: var(--surface);
+  --panel: var(--surface);
+  --panel-2: var(--color-accent);
+  --border: var(--color-border);
+  --text: var(--color-heading);
+  --muted: var(--color-text);
+  --accent: var(--color-primary);
+  --accent-2: var(--color-secondary);
+  --ok: var(--color-success);
+  --warn: #d3a557;
+  --error: #d98d89;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  background: var(--bg);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Manrope', 'Inter', system-ui, sans-serif;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+p {
+  color: var(--muted);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--sage-strong);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+code,
+pre {
+  font-family: 'Cascadia Code', Consolas, 'Courier New', monospace;
+  font-size: 0.92em;
+}
+
+code {
+  background: var(--mint);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 1px 5px;
+  color: var(--sage-strong);
+}
+
+::selection {
+  background: var(--mint);
+  color: var(--charcoal);
+}
+
+:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}

@@ -1,0 +1,146 @@
+{
+  "hello": {
+    "id": 482,
+    "gloss": "HELLO",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/HE/HELLO-482.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/482.html"
+  },
+  "thank_you": {
+    "id": 1198,
+    "gloss": "THANK-YOU",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/TH/THANK-YOU-1198.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/1198.html"
+  },
+  "help": {
+    "id": 2219,
+    "gloss": "HELPb",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/HE/HELP-2219.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/2219.html"
+  },
+  "goodbye": {
+    "id": 425,
+    "gloss": "BYE-BYE",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/BY/BYE-BYE-425.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/425.html"
+  },
+  "yes": {
+    "id": 1472,
+    "gloss": "YES",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/YE/YES-1472.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/1472.html"
+  },
+  "no": {
+    "id": 512,
+    "gloss": "NO",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/NO/NO-512.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/512.html"
+  },
+  "please": {
+    "id": 527,
+    "gloss": "PLEASE",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/PL/PLEASE-527.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/527.html"
+  },
+  "sorry": {
+    "id": 566,
+    "gloss": "SORRY",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/SO/SORRY-566.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/566.html"
+  },
+  "water": {
+    "id": 1414,
+    "gloss": "WATER",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/WA/WATER-1414.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/1414.html"
+  },
+  "eat": {
+    "id": 399,
+    "gloss": "EAT",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/EA/EAT-399.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/399.html"
+  },
+  "more": {
+    "id": 508,
+    "gloss": "MORE",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/MO/MORE-508.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/508.html"
+  },
+  "wait": {
+    "id": 1405,
+    "gloss": "WAIT",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/WA/WAIT-1405.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/1405.html"
+  },
+  "doctor": {
+    "id": 344,
+    "gloss": "DOCTORb",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/DO/DOCTOR-344.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/344.html"
+  },
+  "hospital": {
+    "id": 1759,
+    "gloss": "HOSPITAL",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/HO/HOSPITAL-1759.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/1759.html"
+  },
+  "deaf": {
+    "id": 104,
+    "gloss": "DEAFb",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/DE/DEAF-104.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/104.html"
+  },
+  "emergency": {
+    "id": 3525,
+    "gloss": "EMERGENCY",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/EM/EMERGENCY-3525.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/3525.html"
+  },
+  "bathroom": {
+    "id": 32,
+    "gloss": "BATHROOM",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/BA/BATHROOM-32.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/32.html"
+  },
+  "pain": {
+    "id": 489,
+    "gloss": "PAIN",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/PA/PAIN-489.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/489.html"
+  },
+  "want": {
+    "id": 1409,
+    "gloss": "WANT",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/WA/WANT-1409.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/1409.html"
+  },
+  "need": {
+    "id": 194,
+    "gloss": "NEED",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/NE/NEED-194.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/194.html"
+  },
+  "friend": {
+    "id": 462,
+    "gloss": "FRIEND",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/FR/FRIEND-462.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/462.html"
+  },
+  "where": {
+    "id": 1427,
+    "gloss": "WHERE",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/WH/WHERE-1427.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/1427.html"
+  },
+  "what": {
+    "id": 1425,
+    "gloss": "WHAT",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/WH/WHAT-1425.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/1425.html"
+  },
+  "name": {
+    "id": 511,
+    "gloss": "NAME",
+    "video_url": "https://aslsignbank.haskins.yale.edu/dictionary/protected_media/glossvideo/ASL/NA/NAME-511.mp4",
+    "page_url": "https://aslsignbank.haskins.yale.edu/dictionary/gloss/511.html"
+  }
+}

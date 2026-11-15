@@ -3,5 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "commonjs",
-  "description": "Gestura browser-based accessibility platform"
+  "description": "Gestura browser-based accessibility platform",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.0"
+  }
 }
+
