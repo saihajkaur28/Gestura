@@ -68,11 +68,13 @@ export function useHandTrackingCamera(options: UseHandTrackingCameraOptions = {}
     } catch (loadError) {
       console.error('[mediapipe] Failed to load the hand landmarker.', loadError)
       setModelState('error')
-      setError(
-        `Hand landmark model failed to load: ${
-          loadError instanceof Error ? loadError.message : String(loadError)
-        }`,
-      )
+      const message =
+        loadError instanceof Error
+          ? loadError.message
+          : loadError && typeof loadError === 'object' && 'message' in loadError
+            ? String((loadError as Record<string, unknown>).message)
+            : 'Failed to initialize MediaPipe vision runtime'
+      setError(`Hand landmark model failed to load: ${message}`)
     }
   }, [])
 
