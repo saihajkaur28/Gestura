@@ -2,6 +2,8 @@ import {
   ArrowRight,
   Check,
   Hand,
+  LogIn,
+  LogOut,
   MessageSquareText,
   Play,
   ShieldCheck,
@@ -16,11 +18,23 @@ import type { Page } from '../navigation'
 
 interface LandingProps {
   onOpen: (page: Page) => void
+  onOpenAuth?: () => void
+  isAuthenticated?: boolean
+  userName?: string | null
+  onSignOut?: () => void
   theme: Theme
   onToggleTheme: () => void
 }
 
-export default function Landing({ onOpen, theme, onToggleTheme }: LandingProps) {
+export default function Landing({
+  onOpen,
+  onOpenAuth,
+  isAuthenticated = false,
+  userName = null,
+  onSignOut,
+  theme,
+  onToggleTheme,
+}: LandingProps) {
   return (
     <div className="landing">
       <header className="landing-header">
@@ -39,12 +53,53 @@ export default function Landing({ onOpen, theme, onToggleTheme }: LandingProps) 
 
         <div className="landing-actions">
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
-          <button type="button" className="btn btn-primary" onClick={() => onOpen('dashboard')}>
-            Get started
-            <ArrowRight size={15} strokeWidth={2} />
-          </button>
+          {isAuthenticated ? (
+            <>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => onOpen('dashboard')}
+              >
+                Dashboard
+                <ArrowRight size={15} strokeWidth={2} />
+              </button>
+              {onSignOut && (
+                <button
+                  type="button"
+                  className="logout-btn"
+                  onClick={onSignOut}
+                  title={`Signed in as ${userName || 'user'}`}
+                >
+                  <LogOut size={14} />
+                  Log out
+                </button>
+              )}
+            </>
+          ) : (
+            <>
+              {onOpenAuth && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={onOpenAuth}
+                >
+                  <LogIn size={15} strokeWidth={1.8} />
+                  Sign in
+                </button>
+              )}
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => (onOpenAuth ? onOpenAuth() : onOpen('dashboard'))}
+              >
+                Get started
+                <ArrowRight size={15} strokeWidth={2} />
+              </button>
+            </>
+          )}
         </div>
       </header>
+
 
       <main className="landing-main" id="home">
         <section className="hero-section">

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Hand, Home, LayoutDashboard, Type } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Hand, Home, LayoutDashboard, LogIn, LogOut, Type } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import './App.css'
 import BackendStatus from './components/BackendStatus'
@@ -8,11 +8,13 @@ import Dashboard from './pages/Dashboard'
 import Landing from './pages/Landing'
 import SignToText from './pages/SignToText'
 import TextToSign from './pages/TextToSign'
+import Auth from './pages/Auth'
 import { useTheme } from './hooks/useTheme'
+import { useAuth } from './hooks/useAuth'
 import { NAV_ITEMS } from './navigation'
 import type { Page } from './navigation'
 
-type View = 'landing' | Page
+type View = 'landing' | 'auth' | Page
 
 const PAGE_TITLES: Record<Page, string> = {
   dashboard: 'Dashboard',
@@ -28,10 +30,78 @@ const NAV_ICONS: Record<Page, LucideIcon> = {
 
 export default function App() {
   const [view, setView] = useState<View>('landing')
+  const [authPrompt, setAuthPrompt] = useState<string | null>(null)
   const { theme, toggleTheme } = useTheme()
+  const { user, loading, isAuthenticated, signOut } = useAuth()
 
+  // Route protection: redirect unauthenticated users if on protected pages
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      if (view === 'dashboard' || view === 'sign-to-text' || view === 'text-to-sign') {
+        setAuthPrompt('Please sign in to access your GESTURA workspace.')
+        setView('auth')
+      }
+    }
+  }, [loading, isAuthenticated, view])
+
+  // Navigation handler with protection guard
+  const navigateTo = (nextView: View, promptMessage?: string) => {
+    if (nextView !== 'landing' && nextView !== 'auth' && !isAuthenticated && !loading) {
+      setAuthPrompt(promptMessage || 'Please sign in to access this feature.')
+      setView('auth')
+      return
+    }
+    setAuthPrompt(null)
+    setView(nextView)
+  }
+
+  // Handle Landing Page
   if (view === 'landing') {
-    return <Landing onOpen={(next) => setView(next)} theme={theme} onToggleTheme={toggleTheme} />
+    return (
+      <Landing
+        onOpen={(next) => navigateTo(next)}
+        onOpenAuth={() => {
+          setAuthPrompt(null)
+          setView('auth')
+        }}
+        isAuthenticated={isAuthenticated}
+        userName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || null}
+        onSignOut={async () => {
+          await signOut()
+        }}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+    )
+  }
+
+  // Handle Auth Page (Login / Sign Up / Forgot Password)
+  if (view === 'auth') {
+    if (isAuthenticated) {
+      // Authenticated users go straight to dashboard
+      return (
+        <Dashboard
+          onNavigate={(next) => navigateTo(next)}
+        />
+      )
+    }
+
+    return (
+      <Auth
+        initialMode="login"
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        onSuccess={() => {
+          setAuthPrompt(null)
+          setView('dashboard')
+        }}
+        onBackToHome={() => {
+          setAuthPrompt(null)
+          setView('landing')
+        }}
+        promptMessage={authPrompt}
+      />
+    )
   }
 
   const page = view
@@ -64,7 +134,7 @@ export default function App() {
                 key={item.id}
                 type="button"
                 className={`nav-item ${page === item.id ? 'active' : ''}`}
-                onClick={() => setView(item.id)}
+                onClick={() => navigateTo(item.id)}
                 aria-current={page === item.id ? 'page' : undefined}
               >
                 <span className="nav-icon" aria-hidden="true">
@@ -77,6 +147,19 @@ export default function App() {
         </nav>
 
         <div className="sidebar-footer">
+          {isAuthenticated && user && (
+            <div className="user-profile-badge">
+              <span className="user-avatar-circle">
+                {(user.user_metadata?.full_name?.[0] || user.email?.[0] || 'U').toUpperCase()}
+              </span>
+              <div className="user-profile-info">
+                <span className="user-profile-name">
+                  {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                </span>
+                <span className="user-profile-email">{user.email}</span>
+              </div>
+            </div>
+          )}
           <BackendStatus />
         </div>
       </aside>
@@ -87,6 +170,29 @@ export default function App() {
           <div className="topbar-actions">
             <span className="topbar-note">American Sign Language</span>
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
+            {isAuthenticated ? (
+              <button
+                type="button"
+                className="logout-btn"
+                onClick={async () => {
+                  await signOut()
+                  setView('landing')
+                }}
+                title="Log out of GESTURA"
+              >
+                <LogOut size={14} strokeWidth={1.9} />
+                Log out
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="icon-btn"
+                onClick={() => setView('auth')}
+              >
+                <LogIn size={15} strokeWidth={1.9} />
+                Sign in
+              </button>
+            )}
             <button type="button" className="icon-btn" onClick={() => setView('landing')}>
               <Home size={15} strokeWidth={1.9} />
               Home
@@ -94,7 +200,7 @@ export default function App() {
           </div>
         </header>
         <main className="content">
-          {page === 'dashboard' && <Dashboard onNavigate={setView} />}
+          {page === 'dashboard' && <Dashboard onNavigate={(next) => navigateTo(next)} />}
           {page === 'sign-to-text' && <SignToText />}
           {page === 'text-to-sign' && <TextToSign />}
         </main>
@@ -102,3 +208,4 @@ export default function App() {
     </div>
   )
 }
+
