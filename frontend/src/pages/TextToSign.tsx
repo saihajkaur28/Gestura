@@ -21,6 +21,7 @@ import {
 import { fetchSigns, resolveMediaUrl } from '../lib/api'
 import type { SignInfo } from '../lib/api'
 import { segmentText } from '../lib/segments'
+import AslAvatarCanvas from '../components/AslAvatarCanvas'
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5]
 
@@ -172,8 +173,8 @@ export default function TextToSign() {
 
     if (!playing || !activeSegment) return
 
-    // If the active segment is not a video (e.g. fingerspelled or missing), or in avatar-only mode
-    if (!activeSegment.sign || viewMode === 'avatar') {
+    // If the active segment is not a lexical sign (e.g. fingerspelled or missing)
+    if (!activeSegment.sign) {
       const holdDuration = activeSegment.isFingerspelled
         ? Math.max(1600 / speed, 900)
         : Math.max(2000 / speed, 1200)
@@ -193,7 +194,7 @@ export default function TextToSign() {
         advanceTimerRef.current = null
       }
     }
-  }, [playing, activeIndex, activeSegment, segments.length, speed, viewMode])
+  }, [playing, activeIndex, activeSegment, segments.length, speed])
 
   const handleEnded = useCallback(() => {
     if (activeIndex < segments.length - 1) {
@@ -268,50 +269,42 @@ export default function TextToSign() {
 
   // Render 3D Avatar Stage
   const renderAvatarStage = (isCompact = false) => {
-    const isSigning = playing && activeSegment?.sign
     return (
       <div className={`avatar-stage-container ${isCompact ? 'compact' : ''}`}>
-        <div className="avatar-rig-view">
-          <div className={`avatar-canvas-orb ${isSigning ? 'signing' : ''}`}>
-            <span className="avatar-ring" />
-            <span className="avatar-ring inner" />
-            <div className="avatar-character-portrait">
-              <User size={34} strokeWidth={1.8} />
-              <strong>{activeAvatar.name}</strong>
-              <span>{activeAvatar.role.split(' ')[0]}</span>
+        <AslAvatarCanvas
+          activeSign={activeSegment?.sign ? activeSegment.sign.sign : null}
+          videoRef={viewMode === 'dual' ? videoRef : undefined}
+          playing={playing}
+          playbackSpeed={speed}
+          characterId={selectedAvatarId}
+          compact={isCompact}
+          onAnimationEnded={handleEnded}
+        />
+
+        {!loading && !error && hasText && activeSegment?.isFingerspelled && !isCompact && (
+          <div className="fs-stage" style={{ width: '100%', marginTop: 12 }}>
+            <span className="asl-gloss-badge" style={{ background: 'rgba(255, 207, 86, 0.2)', color: '#ffd56b' }}>
+              ASL Manual Alphabet
+            </span>
+            <div className="fs-letters-grid" style={{ marginTop: 8 }}>
+              {activeSegment.letters?.map((letter, idx) => (
+                <span key={idx} className="fs-letter-chip">
+                  {letter}
+                </span>
+              ))}
             </div>
           </div>
+        )}
 
-          <div style={{ textAlign: 'center' }}>
-            <h3 style={{ margin: '0 0 4px', fontSize: 18, color: '#f2f7f4' }}>
-              {activeAvatar.name} &bull; {activeAvatar.role}
-            </h3>
-            <p style={{ margin: 0, fontSize: 12.5, color: 'rgba(255, 253, 247, 0.65)' }}>
-              {activeAvatar.description}
-            </p>
+        {!loading && !error && hasText && !activeSegment?.sign && !activeSegment?.isFingerspelled && !isCompact && (
+          <div className="stage-missing" style={{ width: '100%', marginTop: 12 }}>
+            <span className="mode-icon">
+              <Box size={20} strokeWidth={1.8} />
+            </span>
+            <strong>{activeSegment ? activeSegment.text : 'No matching signs'}</strong>
+            <span>Sign unavailable in the current ASL dictionary. Avatar resting in neutral pose.</span>
           </div>
-
-          {activeSegment && (
-            <div className="avatar-motion-tracker">
-              <span className={`indicator-dot ${playing ? 'active' : ''}`} />
-              <span>
-                <strong>ASL Target:</strong> {activeSegment.aslGloss ?? activeSegment.text.toUpperCase()}
-              </span>
-              <span>&bull;</span>
-              <span style={{ color: '#a0e8af' }}>
-                {playing ? 'Active Kinematic Motion' : 'Stationary Rest Pose'}
-              </span>
-            </div>
-          )}
-
-          {activeSegment?.sign && (
-            <div className="avatar-handshape-tags">
-              <span className="avatar-handshape-pill">Handshape: Primary B/A/5 Rig</span>
-              <span className="avatar-handshape-pill">Track: ASL Natural Movement</span>
-              <span className="avatar-handshape-pill">Speed: {speed}&times;</span>
-            </div>
-          )}
-        </div>
+        )}
       </div>
     )
   }
