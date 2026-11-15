@@ -19,7 +19,15 @@ export interface HandLandmarkerConfig {
 export async function createHandLandmarker(
   config: Partial<HandLandmarkerConfig> = {},
 ): Promise<HandLandmarker> {
-  const vision = await FilesetResolver.forVisionTasks(HAND_LANDMARKER_WASM_PATH)
+  let vision: Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>
+  try {
+    vision = await FilesetResolver.forVisionTasks(HAND_LANDMARKER_WASM_PATH)
+  } catch (localError) {
+    console.warn('[mediapipe] Local WASM fileset resolution failed, trying CDN fallback...', localError)
+    vision = await FilesetResolver.forVisionTasks(
+      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm',
+    )
+  }
 
   const buildOptions = (delegate: 'GPU' | 'CPU') => ({
     baseOptions: {
@@ -43,7 +51,15 @@ export async function createHandLandmarker(
 
 export async function createFaceLandmarker(): Promise<FaceLandmarker | null> {
   try {
-    const vision = await FilesetResolver.forVisionTasks(HAND_LANDMARKER_WASM_PATH)
+    let vision: Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>
+    try {
+      vision = await FilesetResolver.forVisionTasks(HAND_LANDMARKER_WASM_PATH)
+    } catch {
+      vision = await FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm',
+      )
+    }
+
     const buildOptions = (delegate: 'GPU' | 'CPU') => ({
       baseOptions: {
         modelAssetPath: FACE_LANDMARKER_MODEL_URL,

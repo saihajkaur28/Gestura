@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   Check,
+  GraduationCap,
   Hand,
   LogIn,
   LogOut,
@@ -234,6 +235,27 @@ export default function Landing({
                 onClick={() => onOpen('text-to-sign')}
               >
                 Open Text to Sign <ArrowRight size={14} strokeWidth={2} />
+              </button>
+            </article>
+
+            <article className="feature-card">
+              <div className="feature-header">
+                <span className="feature-icon" aria-hidden="true">
+                  <GraduationCap size={22} strokeWidth={1.7} />
+                </span>
+                <span className="feature-tag">New</span>
+              </div>
+              <h3>LEARN ASL</h3>
+              <p>
+                Master all 26 manual alphabet letters, 5 core everyday words, and 5 complete sentences
+                with authentic demonstrations and slow-motion speed controls.
+              </p>
+              <button
+                type="button"
+                className="feature-link"
+                onClick={() => onOpen('learn')}
+              >
+                Open Learn ASL <ArrowRight size={14} strokeWidth={2} />
               </button>
             </article>
 

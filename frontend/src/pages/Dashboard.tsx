@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowRight, Hand, MessageSquareText, Type, Video, Waves } from 'lucide-react'
+import { ArrowRight, GraduationCap, Hand, MessageSquareText, Type, Video, Waves } from 'lucide-react'
 import { fetchHealth, fetchSigns } from '../lib/api'
 import type { SignInfo } from '../lib/api'
 import type { Page } from '../navigation'
@@ -69,6 +69,14 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               <Type size={16} strokeWidth={2} />
               Text to Sign
             </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => onNavigate('learn')}
+            >
+              <GraduationCap size={16} strokeWidth={2} />
+              Learn ASL
+            </button>
           </div>
         </div>
       </div>
@@ -137,6 +145,22 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             onClick={() => onNavigate('text-to-sign')}
           >
             Open video retrieval
+            <ArrowRight size={15} strokeWidth={2} />
+          </button>
+        </div>
+
+        <div className="card mode-card">
+          <span className="mode-icon" aria-hidden="true">
+            <GraduationCap size={21} strokeWidth={1.7} />
+          </span>
+          <h3>Learn ASL</h3>
+          <p>Master all 26 alphabet letters, 5 core everyday words, and 5 complete sentences with speed controls.</p>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => onNavigate('learn')}
+          >
+            Open ASL Curriculum
             <ArrowRight size={15} strokeWidth={2} />
           </button>
         </div>

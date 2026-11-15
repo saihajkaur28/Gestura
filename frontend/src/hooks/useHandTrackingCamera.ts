@@ -18,6 +18,25 @@ export interface UseHandTrackingCameraOptions {
   onFrame?: (frame: TrackingFrame) => void
 }
 
+function formatModelError(err: unknown): string {
+  if (!err) return 'Unknown runtime initialization error.'
+  if (err instanceof Error) return err.message
+  if (typeof err === 'object') {
+    if ('message' in err && typeof (err as { message: unknown }).message === 'string') {
+      return (err as { message: string }).message
+    }
+    if (typeof Event !== 'undefined' && err instanceof Event) {
+      return `Model resources could not be loaded (${err.type}). Please verify connection.`
+    }
+    try {
+      return JSON.stringify(err)
+    } catch {
+      return String(err)
+    }
+  }
+  return String(err)
+}
+
 export function useHandTrackingCamera(options: UseHandTrackingCameraOptions = {}) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -68,13 +87,7 @@ export function useHandTrackingCamera(options: UseHandTrackingCameraOptions = {}
     } catch (loadError) {
       console.error('[mediapipe] Failed to load the hand landmarker.', loadError)
       setModelState('error')
-      const message =
-        loadError instanceof Error
-          ? loadError.message
-          : loadError && typeof loadError === 'object' && 'message' in loadError
-            ? String((loadError as Record<string, unknown>).message)
-            : 'Failed to initialize MediaPipe vision runtime'
-      setError(`Hand landmark model failed to load: ${message}`)
+      setError(`Hand landmark model failed to load: ${formatModelError(loadError)}`)
     }
   }, [])
 
@@ -237,11 +250,7 @@ export function useHandTrackingCamera(options: UseHandTrackingCameraOptions = {}
         if (cancelled) return
         console.error('[mediapipe] Failed to load the hand landmarker.', loadError)
         setModelState('error')
-        setError(
-          `Hand landmark model failed to load: ${
-            loadError instanceof Error ? loadError.message : String(loadError)
-          }`,
-        )
+        setError(`Hand landmark model failed to load: ${formatModelError(loadError)}`)
       }
     }
 

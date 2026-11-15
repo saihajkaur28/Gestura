@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Hand, Home, LayoutDashboard, LogIn, LogOut, Type } from 'lucide-react'
+import { GraduationCap, Hand, Home, LayoutDashboard, LogIn, LogOut, Type } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import './App.css'
 import BackendStatus from './components/BackendStatus'
@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard'
 import Landing from './pages/Landing'
 import SignToText from './pages/SignToText'
 import TextToSign from './pages/TextToSign'
+import Learn from './pages/Learn'
 import Auth from './pages/Auth'
 import { useTheme } from './hooks/useTheme'
 import { useHighContrast } from './hooks/useHighContrast'
@@ -22,12 +23,14 @@ const PAGE_TITLES: Record<Page, string> = {
   dashboard: 'Dashboard',
   'sign-to-text': 'Sign → Text',
   'text-to-sign': 'Text → Sign',
+  learn: 'Learn ASL',
 }
 
 const NAV_ICONS: Record<Page, LucideIcon> = {
   dashboard: LayoutDashboard,
   'sign-to-text': Hand,
   'text-to-sign': Type,
+  learn: GraduationCap,
 }
 
 export default function App() {
@@ -40,7 +43,7 @@ export default function App() {
   // Route protection: redirect unauthenticated users if on protected pages
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      if (view === 'dashboard' || view === 'sign-to-text' || view === 'text-to-sign') {
+      if (view === 'dashboard' || view === 'sign-to-text' || view === 'text-to-sign' || view === 'learn') {
         setAuthPrompt('Please sign in to access your GESTURA workspace.')
         setView('auth')
       }
@@ -215,6 +218,7 @@ export default function App() {
           {page === 'dashboard' && <Dashboard onNavigate={(next) => navigateTo(next)} />}
           {page === 'sign-to-text' && <SignToText />}
           {page === 'text-to-sign' && <TextToSign />}
+          {page === 'learn' && <Learn />}
         </main>
       </div>
     </div>
