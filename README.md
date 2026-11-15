@@ -1,6 +1,12 @@
 # GESTURA — Two-Way American Sign Language (ASL) Communicator
 
-A bidirectional American Sign Language (ASL) communication platform designed for healthcare, ICU patient care, assistive communication, and inclusive dialogue.
+Gestura is a browser-based accessibility and two-way American Sign Language (ASL) communication platform designed to bridge the gap between signers, deaf/hard-of-hearing users, and vocal speakers in healthcare, ICU patient care, assistive communication, and everyday interaction.
+
+### Core Capabilities
+- **Live Caption & Transcript Sync:** Reads in-page YouTube captions and displays a clean, synchronized transcript inside a convenient Chrome side panel.
+- **Real-Time ASL Sign-to-Text:** Uses webcam capture and MediaPipe hand landmark tracking to translate ASL hand gestures into live text and synthesized speech.
+- **Text-to-ASL & 3D Avatar System:** Converts text into expressive ASL sequences using authentic Yale ASL Signbank videos and 3D signing avatars (**Maya**, **Alex**, and the new 3rd avatar **Jordan**).
+- **Accessible Controls:** Built with intuitive controls for pausing, resuming, clearing, undoing, speed adjustment, and speaking translated text aloud directly in the browser.
 
 ---
 
@@ -8,7 +14,7 @@ A bidirectional American Sign Language (ASL) communication platform designed for
 
 GESTURA provides real-time, bidirectional ASL communication:
 1. **Patient Action Mode (Sign → Text & Speech):** Real-time webcam capture, 21-point MediaPipe hand landmark tracking, normalized spatial-temporal feature extraction (179 dimensions), deep sequence classification (1D-CNN + BiGRU `AslSequenceClassifier`), bilingual text display (English + Hindi), and non-blocking speech synthesis.
-2. **Speak / Write Mode (Text / Voice → ASL Avatar & Video):** Text input or Web Speech recognition mapped to 3D signing avatars (**Maya**, **Alex**, and the new third avatar **Jordan**) alongside authentic Yale ASL Signbank video clips.
+2. **Speak / Write Mode (Text / Voice → ASL Avatar & Video):** Text input or Web Speech recognition mapped to 3D signing avatars (**Maya**, **Alex**, and **Jordan**) alongside authentic Yale ASL Signbank video clips.
 3. **Video / Meet Sync Mode:** Video/meeting audio synchronization with the 3D ASL avatar.
 4. **Eye Blink Mode:** Face tracking and blink detection for ICU patients unable to move hands (YES / NO / SOS emergency actions).
 
@@ -128,7 +134,7 @@ GESTURA/
 
 ### Prerequisites
 - Node.js 20+ and npm
-- Python 3.11+ (Python 3.14 venv tested and verified)
+- Python 3.11+
 - Modern webcam (720p or higher recommended)
 - Chromium-based browser (Chrome, Edge, Brave) or Firefox
 
@@ -151,7 +157,7 @@ The API starts at `http://127.0.0.1:8000`.
 
 To run the automated backend test suite:
 ```powershell
-& "backend\.venv\Scripts\python.exe" backend\test_api_endpoints.py
+& "backend\.venv\Scripts\python.exe" backend\test_asl_library.py
 ```
 
 ### Step 2: Start the Frontend Application
@@ -210,9 +216,14 @@ GESTURA features a fully migrated, authentic **American Sign Language (ASL)** vi
 - **Fingerspelling Fallback:** In accordance with ASL linguistic conventions, names, proper nouns, and unsupported vocabulary (e.g. `Maya`, `David`, `Gestura`) are automatically segmented as **ASL Manual Alphabet Fingerspelling** (`FS(...)`) with individual letter tiles. GESTURA strictly avoids displaying incorrect sign videos.
 - **Missing Vocabulary Handling:** Unsupported terms or punctuation display clear fallback notices without fabricating or substituting incorrect signs.
 
-### 3. Interactive Playback Controls
+### 3. Interactive Playback Controls & 3D Signing Avatars
 - **Sequential Playback:** Plays multi-sign sequences continuously without page refreshes.
 - **Controls:** Play, Pause, Replay, Previous Sign (`SkipBack`), Next Sign (`SkipForward`), Clear, and variable speed selection (`0.5×`, `0.75×`, `1×`, `1.25×`, `1.5×`).
+- **Avatar Switcher:** Seamlessly switch between three avatars:
+  1. **Maya:** Primary female ASL avatar with natural facial dynamics & fluid arm kinematics.
+  2. **Alex:** Clinical healthcare avatar with structured, high-contrast signing for ICU environments.
+  3. **Jordan:** New 3rd avatar with next-generation articulated hand kinematics.
+- **Display Modes:** Toggle between **ASL Video**, **3D Avatar**, or **Side-by-Side** synchronous playback.
 - **Category Filter & Search:** Easily browse signs by category (`Greetings`, `Needs`, `Medical`, `Politeness`, `Questions`, `General`) or live search keywords.
 - **Source Attribution & Avatar Status:** Each clip displays its Yale ASL Signbank ID, Haskins Laboratories attribution, CC BY-NC-SA 4.0 license link, and 3D avatar animation status indicator.
 

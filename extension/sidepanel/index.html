@@ -41,6 +41,33 @@
       <div id="interpretation" class="interpretation">Nothing interpreted yet.</div>
     </section>
 
+    <section class="sign2text">
+      <div class="row">
+        <h2>Sign to Text</h2>
+        <span id="s2t-state" class="status">Idle</span>
+      </div>
+      <div class="s2t-video-wrap">
+        <video id="s2t-video" autoplay playsinline muted></video>
+        <canvas id="s2t-canvas"></canvas>
+      </div>
+      <div class="row">
+        <button id="s2t-start" type="button">Start camera</button>
+        <button id="s2t-pause" type="button">Pause</button>
+        <button id="s2t-resume" type="button">Resume</button>
+        <button id="s2t-stop" type="button">Stop</button>
+      </div>
+      <div class="row">
+        <button id="s2t-clear" type="button">Clear text</button>
+        <button id="s2t-undo" type="button">Undo last</button>
+        <button id="s2t-speak" type="button" aria-pressed="false">Speak: off</button>
+      </div>
+      <p class="label">Candidate</p>
+      <p id="s2t-candidate" class="current-text">—</p>
+      <p class="label">Committed</p>
+      <p id="s2t-committed" class="current-text">—</p>
+      <p id="s2t-diag" class="status"></p>
+    </section>
+
     <footer>
       <p>
         Captions come from in-page tracks or rendered cue text. Whisper fallback
@@ -52,6 +79,8 @@
     <script src="../shared/messages.js"></script>
     <script src="../shared/caption-segment.js"></script>
     <script src="../shared/backend.js"></script>
+    <script src="../shared/handTracker.js"></script>
+    <script src="../shared/signToText.js"></script>
     <script src="sidepanel.js"></script>
   </body>
 </html>

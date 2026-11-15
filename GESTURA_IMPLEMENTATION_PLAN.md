@@ -433,3 +433,31 @@ Do not modify protected GenASL files in later milestones without approval.
 - **Passed / failed:** pending local run: `pytest backend/tests` after `pip install -r backend/requirements.txt`.
 - **Still needs work:** live Gemini/Whisper provider wiring; GenASL adapter (M4); ISL Mixamo player (M7); Braille/Morse (M5); more adapters (M6); production hardening (M8).
 - **Browser verification:** not required for this scaffold milestone.
+
+### 2026-11-15 — Sign-to-Text recognition pipeline (browser + backend)
+
+- **Implemented:** side-panel Sign to Text section (camera preview, candidate vs
+  committed text, pause/resume/clear/undo/speak, diagnostics line); MediaPipe
+  Tasks Vision integration (GPU delegate, 2 hands) with CDN/CSP setup and honest
+  failure messaging; `extension/shared/handTracker.js` (fixed left/right slots,
+  temporal continuity, One Euro smoothing); `extension/shared/signToText.js`
+  (130-float feature contract, 32-frame sequence buffer with stale dedupe,
+  bounded inference scheduler with sequence IDs, prediction stabilizer);
+  backend `/v1/recognition/status` + `/v1/recognition/predict` with strict
+  feature-version/dimension/finite-value validation and honest
+  `model_unavailable`; `backend/training/train_isl.py` (dataset audit,
+  signer-grouped splits, evaluation scaffolding — no fabricated metrics).
+- **Files created:** `extension/shared/signToText.js`,
+  `extension/shared/handTracker.js`, `tests/test-sign-to-text.cjs`,
+  `tests/test-hand-tracker.cjs`, `backend/tests/test_recognition.py`,
+  `backend/training/train_isl.py`.
+- **Files modified:** `extension/sidepanel/index.html`, `sidepanel.js`,
+  `sidepanel.css`, `extension/manifest.json` (camera permission + CSP),
+  `backend/main.py`, `backend/config.py`, `README.md`.
+- **Tests executed:** JS `node --test tests/*.cjs` → 27/27 pass;
+  Python `python -m pytest backend/tests` → 7/7 pass.
+- **Honest limitations:** no trained ISL model or dataset is bundled, so
+  recognition accuracy cannot be claimed. MediaPipe requires internet access
+  to the CDN (or vendoring into `vendor/mediapipe`); camera use requires Chrome
+  and explicit user consent. Live webcam verification remains pending in this
+  environment.

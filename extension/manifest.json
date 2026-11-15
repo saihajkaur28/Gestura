@@ -22,7 +22,10 @@
   "background": {
     "service_worker": "background/service-worker.js"
   },
-  "permissions": ["storage", "sidePanel", "activeTab"],
+  "permissions": ["storage", "sidePanel", "activeTab", "camera"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; object-src 'self'"
+  },
   "host_permissions": [
     "https://www.youtube.com/*",
     "https://m.youtube.com/*",
