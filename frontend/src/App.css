@@ -5035,3 +5035,434 @@
   transform: none !important;
   align-self: center !important;
 }
+
+
+/* ==========================================================================
+   ALPHABET NAVIGATION PANEL & WORDS/PHRASES DROPDOWN (GESTURA LEARN)
+   ========================================================================== */
+
+.asl-header-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+}
+
+.asl-header-right {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.asl-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Words & Phrases Dropdown */
+.asl-dropdown-wrapper {
+  position: relative;
+}
+
+.asl-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  min-height: 44px;
+  font-weight: 750;
+  font-size: 14.5px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.asl-dropdown-btn:hover {
+  background: var(--mint);
+  border-color: var(--sage);
+}
+
+.asl-dropdown-chevron {
+  transition: transform 0.2s ease;
+}
+
+.asl-dropdown-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.asl-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 330px;
+  max-height: 490px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  z-index: 120;
+  padding: 8px;
+  animation: fadeInDown 0.15s ease;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.asl-dropdown-section-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sage-strong);
+  padding: 8px 10px 4px;
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+}
+
+.asl-dropdown-section-header:first-of-type {
+  border-top: none;
+  margin-top: 0;
+}
+
+.asl-dropdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.asl-dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 650;
+  color: var(--charcoal);
+  transition: background 0.15s ease;
+  text-align: left;
+}
+
+.asl-dropdown-item:hover {
+  background: var(--mint);
+  color: var(--charcoal);
+}
+
+.asl-dropdown-item.selected {
+  background: var(--sage);
+  color: #ffffff;
+  font-weight: 750;
+}
+
+.asl-mini-badge {
+  font-size: 10px !important;
+  padding: 2px 6px !important;
+}
+
+.asl-avail-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sage-strong);
+  flex-shrink: 0;
+}
+
+.asl-dropdown-item.selected .asl-avail-dot {
+  background: #ffffff;
+}
+
+.asl-unavail-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--ivory);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+/* 3-Section Layout Grid */
+.asl-player-layout-3col {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(290px, 0.95fr) 275px;
+  gap: 22px;
+  align-items: start;
+}
+
+@media (max-width: 1240px) {
+  .asl-player-layout-3col {
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 1fr);
+  }
+  .asl-alphabet-sidebar {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 860px) {
+  .asl-player-layout-3col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Alphabet Navigation Sidebar on the Right */
+.asl-alphabet-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.asl-alphabet-nav-card {
+  padding: 20px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.asl-alphabet-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.asl-alpha-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.asl-alpha-header-title h3 {
+  font-size: 1.15rem;
+  font-weight: 850;
+  margin: 0;
+  color: var(--charcoal);
+  letter-spacing: -0.01em;
+}
+
+.asl-alpha-nav-hint {
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.asl-alphabet-compact-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.asl-alpha-btn {
+  aspect-ratio: 1;
+  min-height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--charcoal);
+  font-size: 15px;
+  font-weight: 850;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.asl-alpha-btn:hover {
+  background: var(--mint);
+  border-color: var(--sage);
+  transform: translateY(-2px);
+}
+
+.asl-alpha-btn.active {
+  background: var(--sage);
+  color: #ffffff;
+  border-color: var(--sage-strong);
+  box-shadow: 0 2px 6px rgba(10, 82, 56, 0.3);
+}
+
+.asl-alpha-nav-footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.asl-alpha-status-info {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.asl-alpha-status-info strong {
+  color: var(--charcoal);
+}
+
+.asl-return-alpha-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+/* Sign Details Panel Card Header */
+.asl-info-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.asl-info-card-header h3 {
+  margin: 0 !important;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+}
+
+/* Unavailable Sign Card */
+.asl-unavailable-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
+  background: var(--surface);
+  color: var(--charcoal);
+  gap: 12px;
+}
+
+.asl-unavailable-icon-circle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--mint);
+  color: var(--sage-strong);
+  display: grid;
+  place-items: center;
+  margin-bottom: 4px;
+}
+
+.asl-unavailable-card h3 {
+  font-size: 1.45rem;
+  font-weight: 850;
+  margin: 0;
+  color: var(--charcoal);
+}
+
+.asl-unavailable-text {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--charcoal);
+  max-width: 440px;
+  margin: 0;
+}
+
+.asl-unavailable-subtext {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 420px;
+  margin: 0 0 10px 0;
+}
+
+/* High Contrast Overrides */
+.high-contrast .asl-dropdown-btn {
+  border: 2.5px solid var(--border) !important;
+  font-size: 1.2rem !important;
+  font-weight: 850 !important;
+  min-height: 52px !important;
+}
+
+.high-contrast .asl-dropdown-menu {
+  border: 3px solid var(--border) !important;
+  width: 380px !important;
+}
+
+.high-contrast .asl-dropdown-section-header {
+  font-size: 1rem !important;
+  font-weight: 900 !important;
+  color: var(--text) !important;
+}
+
+.high-contrast .asl-dropdown-item {
+  font-size: 1.15rem !important;
+  font-weight: 750 !important;
+  padding: 10px 14px !important;
+}
+
+.high-contrast .asl-dropdown-item.selected {
+  background: var(--mint) !important;
+  color: var(--text) !important;
+  border: 2px solid var(--border) !important;
+}
+
+.high-contrast .asl-alphabet-nav-card {
+  border: 3px solid var(--border) !important;
+}
+
+.high-contrast .asl-alpha-header-title h3 {
+  font-size: 1.4rem !important;
+  font-weight: 900 !important;
+}
+
+.high-contrast .asl-alpha-btn {
+  font-size: 1.25rem !important;
+  font-weight: 900 !important;
+  border: 2px solid var(--border) !important;
+  min-height: 48px !important;
+}
+
+.high-contrast .asl-alpha-btn.active {
+  background: var(--mint) !important;
+  color: var(--text) !important;
+  border: 3px solid var(--border) !important;
+}
+
+.high-contrast .asl-unavailable-card {
+  border: 3px solid var(--border) !important;
+}
+
+.high-contrast .asl-unavailable-card h3 {
+  font-size: 1.8rem !important;
+  font-weight: 900 !important;
+}
+
+.high-contrast .asl-unavailable-text {
+  font-size: 1.25rem !important;
+  font-weight: 650 !important;
+}

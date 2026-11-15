@@ -1,18 +1,27 @@
 import { useState } from 'react'
 import { BookOpen, CheckCircle2, ChevronRight, Gauge, MessageSquare, Play, Sparkles } from 'lucide-react'
 import ASLVideoPlayer from '../components/ASLVideoPlayer'
-import type { ASLVideoItem } from '../components/ASLVideoPlayer'
-import { ALPHABET_ITEMS, COMMON_SENTENCES, COMMON_WORDS } from '../data/learnVocabulary'
+import type { ASLVideoItem } from '../data/learnVocabulary'
+import { ALPHABET_ITEMS, COMMON_PHRASES, COMMON_WORDS } from '../data/learnVocabulary'
 
-type LearnTab = 'alphabet' | 'words' | 'sentences'
+type LearnTab = 'alphabet' | 'words' | 'phrases'
 
 export default function Learn() {
   const [activeTab, setActiveTab] = useState<LearnTab>('alphabet')
   const [selectedItem, setSelectedItem] = useState<ASLVideoItem | null>(null)
 
-  // When a video is selected, render the dedicated ASLVideoPlayer view
+  // When a video is selected, render the dedicated ASLVideoPlayer view with interactive 3-section layout
   if (selectedItem) {
-    return <ASLVideoPlayer item={selectedItem} onBack={() => setSelectedItem(null)} />
+    return (
+      <ASLVideoPlayer
+        item={selectedItem}
+        onSelectItem={(newItem) => setSelectedItem(newItem)}
+        onBack={() => setSelectedItem(null)}
+        alphabetItems={ALPHABET_ITEMS}
+        commonWords={COMMON_WORDS}
+        commonPhrases={COMMON_PHRASES}
+      />
+    )
   }
 
   return (
@@ -25,7 +34,7 @@ export default function Learn() {
         </div>
         <h1 className="learn-title">Learn American Sign Language</h1>
         <p className="learn-description">
-          Master authentic manual alphabet fingerspelling, core verified everyday vocabulary, and essential complete sentences with synchronized video demonstrations and adjustable playback speed.
+          Master authentic manual alphabet fingerspelling, core verified everyday vocabulary, and essential conversational phrases with synchronized video demonstrations, right-side alphabet navigation, and multi-speed controls.
         </p>
 
         {/* Feature Highlights Pills */}
@@ -36,11 +45,11 @@ export default function Learn() {
           </div>
           <div className="learn-highlight-pill">
             <CheckCircle2 size={16} className="text-sage" />
-            <span>5 Verified Core Words</span>
+            <span>12 Core Everyday Words</span>
           </div>
           <div className="learn-highlight-pill">
             <CheckCircle2 size={16} className="text-sage" />
-            <span>5 Verified Complete Sentences</span>
+            <span>10 Conversational Phrases</span>
           </div>
           <div className="learn-highlight-pill">
             <Gauge size={16} className="text-sage" />
@@ -72,19 +81,19 @@ export default function Learn() {
         >
           <Sparkles size={18} strokeWidth={2.2} />
           <span>Common Words</span>
-          <span className="learn-tab-count">5</span>
+          <span className="learn-tab-count">{COMMON_WORDS.length}</span>
         </button>
 
         <button
           type="button"
           role="tab"
-          aria-selected={activeTab === 'sentences'}
-          className={`learn-tab-btn ${activeTab === 'sentences' ? 'active' : ''}`}
-          onClick={() => setActiveTab('sentences')}
+          aria-selected={activeTab === 'phrases'}
+          className={`learn-tab-btn ${activeTab === 'phrases' ? 'active' : ''}`}
+          onClick={() => setActiveTab('phrases')}
         >
           <MessageSquare size={18} strokeWidth={2.2} />
-          <span>Common Sentences</span>
-          <span className="learn-tab-count">5</span>
+          <span>Common Phrases</span>
+          <span className="learn-tab-count">{COMMON_PHRASES.length}</span>
         </button>
       </div>
 
@@ -96,7 +105,7 @@ export default function Learn() {
             <div className="learn-section-intro">
               <div className="learn-section-meta">
                 <h2>Manual Alphabet (A–Z)</h2>
-                <p>Click any letter to open its dedicated authentic sign video demonstration with 0.5x–1.5x slow-motion controls.</p>
+                <p>Click any letter to open the integrated learning workspace with right-side A–Z quick navigation and 0.5x–1.5x speed controls.</p>
               </div>
               <span className="badge badge-ok">All 26 Letters Verified</span>
             </div>
@@ -126,15 +135,15 @@ export default function Learn() {
           </div>
         )}
 
-        {/* Tab 2: Common Words (5 Verified Signs) */}
+        {/* Tab 2: Common Words */}
         {activeTab === 'words' && (
           <div className="learn-section" role="tabpanel" aria-label="Common Words">
             <div className="learn-section-intro">
               <div className="learn-section-meta">
                 <h2>Common ASL Words</h2>
-                <p>Five high-frequency everyday vocabulary words with authentic sign demonstration videos from Yale ASL Signbank.</p>
+                <p>High-frequency everyday vocabulary words with authentic sign demonstration videos from Yale ASL Signbank.</p>
               </div>
-              <span className="badge badge-ok">5 Verified Videos</span>
+              <span className="badge badge-ok">{COMMON_WORDS.filter((w) => w.status === 'available').length} Verified Available</span>
             </div>
 
             <div className="vocabulary-grid">
@@ -155,9 +164,13 @@ export default function Learn() {
                 >
                   <div className="vocab-card-header">
                     <span className="badge badge-category">{wordItem.category}</span>
-                    <span className="vocab-play-icon" aria-hidden="true">
-                      <Play size={16} fill="currentColor" />
-                    </span>
+                    {wordItem.status === 'available' ? (
+                      <span className="vocab-play-icon" aria-hidden="true">
+                        <Play size={16} fill="currentColor" />
+                      </span>
+                    ) : (
+                      <span className="badge badge-loading">In Pipeline</span>
+                    )}
                   </div>
 
                   <h3 className="vocab-title">{wordItem.title}</h3>
@@ -170,7 +183,7 @@ export default function Learn() {
                   <div className="vocab-footer">
                     <span className="vocab-handshape-pill">{wordItem.handshape}</span>
                     <span className="vocab-view-link">
-                      <span>Watch & Learn</span>
+                      <span>{wordItem.status === 'available' ? 'Watch & Learn' : 'View Details'}</span>
                       <ChevronRight size={16} />
                     </span>
                   </div>
@@ -180,51 +193,55 @@ export default function Learn() {
           </div>
         )}
 
-        {/* Tab 3: Common Sentences (5 Verified Complete Phrases) */}
-        {activeTab === 'sentences' && (
-          <div className="learn-section" role="tabpanel" aria-label="Common Sentences">
+        {/* Tab 3: Common Phrases */}
+        {activeTab === 'phrases' && (
+          <div className="learn-section" role="tabpanel" aria-label="Common Phrases">
             <div className="learn-section-intro">
               <div className="learn-section-meta">
-                <h2>Everyday ASL Sentences</h2>
-                <p>Five complete, authentic conversational sentence videos representing essential questions, expressions, and emergency statements.</p>
+                <h2>Everyday ASL Phrases</h2>
+                <p>Authentic conversational phrase videos representing essential questions, introductions, greetings, and emergency requests.</p>
               </div>
-              <span className="badge badge-ok">5 Authentic Complete Sentences</span>
+              <span className="badge badge-ok">{COMMON_PHRASES.filter((p) => p.status === 'available').length} Verified Available</span>
             </div>
 
             <div className="sentences-grid">
-              {COMMON_SENTENCES.map((sentenceItem) => (
+              {COMMON_PHRASES.map((phraseItem) => (
                 <div
-                  key={sentenceItem.id}
+                  key={phraseItem.id}
                   className="card sentence-card"
-                  onClick={() => setSelectedItem(sentenceItem)}
+                  onClick={() => setSelectedItem(phraseItem)}
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
-                      setSelectedItem(sentenceItem)
+                      setSelectedItem(phraseItem)
                     }
                   }}
-                  aria-label={`Learn sign for sentence ${sentenceItem.title}`}
+                  aria-label={`Learn sign for phrase ${phraseItem.title}`}
                 >
                   <div className="sentence-card-top">
-                    <span className="badge badge-sentence">Full Sentence</span>
-                    <span className="sentence-play-circle" aria-hidden="true">
-                      <Play size={18} fill="currentColor" />
-                    </span>
+                    <span className="badge badge-sentence">{phraseItem.category}</span>
+                    {phraseItem.status === 'available' ? (
+                      <span className="sentence-play-circle" aria-hidden="true">
+                        <Play size={18} fill="currentColor" />
+                      </span>
+                    ) : (
+                      <span className="badge badge-loading">In Pipeline</span>
+                    )}
                   </div>
 
-                  <h3 className="sentence-title">{sentenceItem.title}</h3>
-                  {sentenceItem.subtitle && <span className="sentence-subtitle">{sentenceItem.subtitle}</span>}
+                  <h3 className="sentence-title">{phraseItem.title}</h3>
+                  {phraseItem.subtitle && <span className="sentence-subtitle">{phraseItem.subtitle}</span>}
 
-                  {sentenceItem.description && (
-                    <p className="sentence-desc">{sentenceItem.description}</p>
+                  {phraseItem.description && (
+                    <p className="sentence-desc">{phraseItem.description}</p>
                   )}
 
                   <div className="sentence-bottom-row">
-                    <span className="sentence-tag">{sentenceItem.handshape}</span>
+                    <span className="sentence-tag">{phraseItem.handshape}</span>
                     <span className="sentence-cta">
-                      <span>Practice Sign</span>
+                      <span>{phraseItem.status === 'available' ? 'Practice Sign' : 'View Details'}</span>
                       <ChevronRight size={16} />
                     </span>
                   </div>
@@ -237,3 +254,4 @@ export default function Learn() {
     </div>
   )
 }
+
