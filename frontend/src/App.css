@@ -5,7 +5,7 @@
 /* ---------- App shell ---------- */
 .app-shell {
   display: grid;
-  grid-template-columns: 268px minmax(0, 1fr);
+  grid-template-columns: 300px minmax(0, 1fr);
   min-height: 100vh;
   background: var(--bg);
 }
@@ -13,8 +13,8 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 26px;
-  padding: 26px 18px;
+  gap: 28px;
+  padding: 28px 20px;
   background: var(--surface);
   border-right: 1px solid var(--border);
   position: sticky;
@@ -26,14 +26,14 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 2px 8px;
+  gap: 14px;
+  padding: 4px 8px;
 }
 
 .brand-mark {
-  width: 42px;
-  height: 42px;
-  border-radius: 13px;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
   display: grid;
   place-items: center;
   background: var(--mint);
@@ -47,13 +47,13 @@
   font-family: 'Manrope', sans-serif;
   font-weight: 800;
   letter-spacing: 0.14em;
-  font-size: 15.8px;
+  font-size: 17px;
   color: var(--charcoal);
 }
 
 .brand-sub {
   display: block;
-  font-size: 11.6px;
+  font-size: 12.2px;
   color: var(--muted);
   margin-top: 2px;
   letter-spacing: 0.02em;
@@ -68,13 +68,14 @@
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 13px;
   width: 100%;
   text-align: left;
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  padding: 11px 13px;
+  padding: 13px 16px;
+  min-height: 48px;
   cursor: pointer;
   color: var(--muted);
   font-weight: 550;
@@ -99,14 +100,21 @@
 
 .nav-icon {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: currentColor;
   flex: none;
-  opacity: 0.9;
+  opacity: 0.95;
+}
+
+.nav-icon svg {
+  width: 19px;
+  height: 19px;
 }
 
 .nav-label {
   display: block;
-  font-size: 14.7px;
+  font-size: 15.5px;
 }
 
 .nav-desc {
@@ -333,9 +341,15 @@
 
 .workspace-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
-  gap: 20px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(380px, 1fr);
+  gap: 24px;
   align-items: start;
+}
+
+@media (max-width: 1160px) {
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ---------- Cards ---------- */
@@ -343,14 +357,15 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 24px;
   box-shadow: var(--shadow-xs);
   transition: box-shadow var(--transition), border-color var(--transition);
+  box-sizing: border-box;
 }
 
 .card h2 {
   margin: 0 0 16px;
-  font-size: 16.8px;
+  font-size: 17.5px;
   letter-spacing: -0.015em;
 }
 
@@ -364,26 +379,32 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
 }
 
 .card-head h2 {
   margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11.6px;
-  font-weight: 550;
-  padding: 4px 10px;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--ivory);
   color: var(--muted);
   text-transform: capitalize;
   white-space: nowrap;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .badge-ok {
@@ -992,11 +1013,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 24px 16px;
   border: 1px solid rgba(137, 182, 165, 0.24);
   border-radius: var(--radius-sm);
   background: var(--ivory);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .recognition-kicker {
@@ -1009,12 +1032,18 @@
 
 .recognition-sign {
   font-family: 'Manrope', sans-serif;
-  font-size: 39.9px;
+  font-size: clamp(22px, 2.3vw, 34px);
   font-weight: 800;
   letter-spacing: 0.02em;
-  line-height: 1.1;
+  line-height: 1.25;
   color: var(--charcoal);
-  min-height: 44px;
+  min-height: 48px;
+  text-align: center;
+  word-break: break-word;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
 }
 
 .recognition-confidence {
@@ -3844,35 +3873,63 @@
   letter-spacing: 0.03em;
 }
 
-/* 6. Sidebar & Nav Enhancements */
+/* 6. Sidebar & Nav Enhancements (Prominent Large Side Panel) */
 .high-contrast .app-shell {
-  grid-template-columns: 290px minmax(0, 1fr) !important;
+  grid-template-columns: 350px minmax(0, 1fr) !important;
 }
 
 .high-contrast .sidebar {
+  width: 350px !important;
   border-right: 2.5px solid var(--border) !important;
-  padding: 28px 18px;
+  padding: 32px 22px !important;
+  gap: 32px !important;
+}
+
+.high-contrast .brand {
+  gap: 16px !important;
+  padding: 4px 10px !important;
+}
+
+.high-contrast .brand-mark {
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 16px !important;
+  border: 2px solid var(--border) !important;
+}
+
+.high-contrast .brand-mark svg {
+  width: 28px !important;
+  height: 28px !important;
+  stroke-width: 2.4 !important;
 }
 
 .high-contrast .brand-name {
-  font-size: 1.35rem !important;
+  font-size: 1.55rem !important;
   font-weight: 900 !important;
   color: var(--text) !important;
+  letter-spacing: 0.12em !important;
 }
 
 .high-contrast .brand-sub {
-  font-size: 0.95rem !important;
-  font-weight: 700 !important;
+  font-size: 1.05rem !important;
+  font-weight: 750 !important;
   color: var(--text) !important;
+  margin-top: 4px !important;
+}
+
+.high-contrast .nav {
+  gap: 10px !important;
 }
 
 .high-contrast .nav-item {
-  padding: 13px 18px !important;
-  font-size: 1.12rem !important;
-  font-weight: 750 !important;
+  padding: 16px 22px !important;
+  min-height: 56px !important;
+  font-size: 1.25rem !important;
+  font-weight: 800 !important;
   border-radius: var(--radius-sm) !important;
   border: 2px solid transparent !important;
   color: var(--text) !important;
+  gap: 14px !important;
 }
 
 .high-contrast .nav-item:hover {
@@ -3884,17 +3941,102 @@
   background: var(--mint) !important;
   border: 2.5px solid var(--border) !important;
   color: var(--text) !important;
-  font-weight: 850 !important;
+  font-weight: 900 !important;
 }
 
-.high-contrast .nav-item svg,
-.high-contrast .brand-mark svg {
-  width: 22px !important;
-  height: 22px !important;
+.high-contrast .nav-item svg {
+  width: 24px !important;
+  height: 24px !important;
   stroke-width: 2.4 !important;
 }
 
+.high-contrast .user-profile-badge {
+  padding: 14px 18px !important;
+  gap: 14px !important;
+  margin-bottom: 14px !important;
+  border: 2.5px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.high-contrast .user-avatar-circle {
+  width: 44px !important;
+  height: 44px !important;
+  font-size: 18px !important;
+  font-weight: 850 !important;
+  border: 2px solid var(--border) !important;
+}
+
+.high-contrast .user-profile-name {
+  font-size: 16px !important;
+  font-weight: 850 !important;
+  color: var(--text) !important;
+}
+
+.high-contrast .user-profile-email {
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  color: var(--muted) !important;
+}
+
+.high-contrast .sidebar-footer {
+  gap: 14px !important;
+}
+
+.high-contrast .sidebar-footer .status-pill {
+  min-height: 46px !important;
+  padding: 10px 18px !important;
+  font-size: 1.05rem !important;
+  font-weight: 800 !important;
+}
+
 /* 7. Sign to Text (Live ASL Camera Recognition) */
+.high-contrast .workspace-grid {
+  grid-template-columns: minmax(0, 1.18fr) minmax(390px, 1fr) !important;
+  gap: 24px !important;
+}
+
+@media (max-width: 1200px) {
+  .high-contrast .workspace-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.high-contrast .card-head {
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
+.high-contrast .recognition-card {
+  overflow: hidden !important;
+}
+
+.high-contrast .recognition-card .card-head {
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
+.high-contrast .recognition-card .card-head h2 {
+  font-size: 1.55rem !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+.high-contrast .recognition-badge {
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
+  padding: 6px 14px !important;
+  border: 2px solid var(--border) !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+  text-align: center !important;
+  flex-shrink: 0 !important;
+}
+
+.high-contrast .recognition-sign {
+  font-size: clamp(24px, 2.3vw, 34px) !important;
+  line-height: 1.35 !important;
+  min-height: 52px !important;
+}
 .high-contrast .sentence-display,
 .high-contrast .recognition-panel .sentence-box,
 .high-contrast .live-transcription-box {
