@@ -43,3 +43,22 @@ MODELS_DIR = Path(
 ).expanduser().resolve()
 
 SUPPORTED_VIDEO_EXTENSIONS = {".mp4", ".webm", ".mov", ".m4v", ".ogv"}
+
+# Maritime AI Agents Platform Integration (Hackathon Challenge: Best Use of Maritime)
+MARITIME_API_KEY = os.getenv("MARITIME_API_KEY", "")
+MARITIME_AGENT_ENDPOINT = os.getenv(
+    "MARITIME_AGENT_ENDPOINT", "https://api.maritime.sh/v1/agents"
+)
+MARITIME_SCALE_TIER = os.getenv(
+    "MARITIME_SCALE_TIER", "Scale Tier (VIHAANX Hackathon Access)"
+)
+
+# Prune AI Security, Gateway & Cost Reduction (Hackathon Challenge: Best Use of Prune)
+PRUNE_API_KEY = os.getenv("PRUNE_API_KEY", "")
+PRUNE_GATEWAY_URL = os.getenv(
+    "PRUNE_GATEWAY_URL", "https://gateway.useprune.com/v1"
+)
+PRUNE_PRO_TIER = os.getenv(
+    "PRUNE_PRO_TIER", "Prune Pro (Hackathon Access)"
+)
+

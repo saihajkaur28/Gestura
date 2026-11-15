@@ -230,3 +230,61 @@ GESTURA features a fully migrated, authentic **American Sign Language (ASL)** vi
 ### 4. Historical ISL Asset Preservation
 - All 35 original ISL video assets have been safely archived to `videos/isl_legacy/`.
 - Accessible through the backend API via `GET /api/signs?lang=isl` and `/media/isl_legacy/{filename}` for historical and comparative research.
+
+---
+
+## 8. Hackathon AI Integrations: Maritime & Prune
+
+GESTURA integrates two specialized AI platforms for the **VIHAAN-X Special Challenges**:
+
+```
+                                      +------------------------------------+
+                                      |   GESTURA Real-Time ASL Stream     |
+                                      +-----------------+------------------+
+                                                        |
+                                                        v
+                                      +------------------------------------+
+                                      |        Prune AI Gateway            |
+                                      |  - HIPAA PII Sanitization Guard    |
+                                      |  - Semantic Cache (<5ms, $0.00)    |
+                                      |  - Real-Time Observability         |
+                                      +-----------------+------------------+
+                                                        |
+                                                        v
+                                      +------------------------------------+
+                                      |    Maritime Cloud Agent Cloud      |
+                                      |  - Autonomous Bedside ICU Caregiver|
+                                      |  - Clinical Urgency Triage (Code)  |
+                                      |  - Nursing Dispatch & Reassurance  |
+                                      +------------------------------------+
+```
+
+### 1. Best Use of Maritime (`maritime.sh`)
+- **Challenge:** Fully managed cloud for running AI agents at scale (Scale plan with participant code `VIHAANX`).
+- **Autonomous Caregiver & Triage Agent (`backend/agents/maritime_agent.py`):**
+  - Receives live recognized ASL signs (`"HELP"`, `"PAIN"`, `"DOCTOR"`, `"WATER"`).
+  - Automatically classifies urgency into 4 clinical tiers:
+    1. **CRITICAL EMERGENCY:** Triggers Code Alert to nursing station, bedside priority strobe, and rapid response dispatch.
+    2. **URGENT CARE:** Alerts attending physician and assigned RN for clinical assessment.
+    3. **ROUTINE COMFORT:** Coordinates hydration, blankets, or orderly assistance.
+    4. **PATIENT COMMUNICATION:** Acknowledges social sign interaction and updates bedside log.
+  - Generates structured 3D avatar response sequences to sign back to the patient.
+  - Endpoints:
+    - `GET /api/agents/maritime/status` — Platform scale tier, agent status, and active protocols.
+    - `POST /api/agents/maritime/triage` — Evaluates sign sequences with patient ID context.
+
+### 2. Best Use of Prune
+- **Challenge:** Platform to reduce LLM API costs, secure API keys, block risky requests, and monitor AI calls.
+- **AI Security & Cost Reduction Gateway (`backend/providers/prune_gateway.py`):**
+  - **Medical PII Sanitization Guard:** Automatically detects and redacts patient identifiers (MRN, bed/room numbers, phone numbers, SSN) before requests leave the boundary.
+  - **Semantic Caching Engine:** ASL signs in hospital/bedside settings are frequently repeated. Prune's semantic cache returns instant (<5ms) responses at **$0 token cost** (100% cost savings).
+  - **Observability & Telemetry:** Tracks cumulative requests, cache hits, hit rate %, tokens saved, USD cost saved, latency saved, and PII threats blocked.
+  - Endpoints:
+    - `POST /api/ai/prune/query` — Secure query through Prune gateway with PII sanitization.
+    - `GET /api/ai/prune/metrics` — Live telemetry metrics for the Prune observability dashboard.
+
+### 3. Non-Intrusive UI Touchpoint
+- Embedded as an expandable, non-disruptive drawer (`CaregiverAgentDrawer.tsx`) within the Sign-to-Text panel.
+- Shows live Maritime scale status, Prune security shields, instant triage evaluation, spoken reassurance, and real-time latency and cost savings without affecting camera, speech, or 3D avatar controls.
+- Seamless offline and local fallback ensures 100% system availability even without external API keys.
+

@@ -14,6 +14,8 @@ import {
 import type { RecognitionPhase, RecognitionUpdate } from '../lib/aslRecognitionEngine'
 import { displayLabel, getGestureInfo } from '../lib/aslLabels'
 import type { SpeechLanguage } from '../lib/speech'
+import CaregiverAgentDrawer from './CaregiverAgentDrawer'
+
 
 interface RecognitionPanelProps {
   update: RecognitionUpdate | null
@@ -219,7 +221,11 @@ export default function RecognitionPanel({
         </button>
       </div>
 
+      {/* Autonomous Caregiver AI Drawer (Maritime + Prune Hackathon Integration) */}
+      <CaregiverAgentDrawer sentence={sentence} lastCommitted={lastCommitted} />
+
       {/* Developer Debugging Panel (Collapsible / Unobtrusive) */}
+
       <div className="dev-panel-container">
         <button
           type="button"

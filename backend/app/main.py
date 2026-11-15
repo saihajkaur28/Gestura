@@ -6,6 +6,15 @@ from urllib.parse import quote
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
+from pydantic import BaseModel, Field
+
+try:
+    from providers.prune_gateway import prune_gateway
+    from agents.maritime_agent import maritime_agent
+except ImportError:
+    from backend.providers.prune_gateway import prune_gateway
+    from backend.agents.maritime_agent import maritime_agent
+
 
 from .config import (
     APP_NAME,
@@ -71,6 +80,8 @@ def root() -> dict[str, str]:
         "health": "/health",
         "recognition": "/api/recognition/status",
         "signs": "/api/signs",
+        "maritime_agent": "/api/agents/maritime/status",
+        "prune_gateway": "/api/ai/prune/metrics",
     }
 
 
@@ -90,7 +101,10 @@ def health() -> dict[str, object]:
         "video_signs": len(asl_signs),
         "recognition_available": bool(recognition.get("available")),
         "recognition_code": recognition.get("code"),
+        "maritime_agent_active": True,
+        "prune_gateway_active": True,
     }
+
 
 
 @app.get("/api/signs")
@@ -239,3 +253,58 @@ def recognition_predict(request: PredictRequest) -> JSONResponse:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
     return JSONResponse(content=result)
+
+
+# =============================================================================
+# Maritime AI Agent Cloud Endpoints (Challenge: Best Use of Maritime)
+# =============================================================================
+
+
+class MaritimeTriageRequest(BaseModel):
+    signs: list[str] = Field(default_factory=list)
+    patient_id: str = Field(default="BED-402")
+    notes: str = Field(default="")
+
+
+@app.get("/api/agents/maritime/status")
+def get_maritime_agent_status() -> dict[str, object]:
+    """Returns Maritime AI agent deployment and platform tier status."""
+    return maritime_agent.get_status()
+
+
+@app.post("/api/agents/maritime/triage")
+def trigger_maritime_triage(request: MaritimeTriageRequest) -> dict[str, object]:
+    """Evaluates recognized ASL sign sequences and coordinates bedside clinical triage."""
+    return maritime_agent.evaluate_triage(
+        signs=request.signs,
+        patient_id=request.patient_id,
+        notes=request.notes,
+    )
+
+
+# =============================================================================
+# Prune AI Security, Semantic Caching & Gateway Endpoints (Challenge: Best Use of Prune)
+# =============================================================================
+
+
+class PruneQueryRequest(BaseModel):
+    prompt: str
+    bypass_cache: bool = False
+    context: dict[str, object] = Field(default_factory=dict)
+
+
+@app.post("/api/ai/prune/query")
+def execute_prune_query(request: PruneQueryRequest) -> dict[str, object]:
+    """Interprets patient queries with PII scrubbing, semantic caching, and latency tracking."""
+    return prune_gateway.process_query(
+        prompt=request.prompt,
+        context=request.context,
+        bypass_cache=request.bypass_cache,
+    )
+
+
+@app.get("/api/ai/prune/metrics")
+def get_prune_metrics() -> dict[str, object]:
+    """Returns real-time telemetry metrics for Prune AI cost and security dashboard."""
+    return prune_gateway.get_metrics()
+

@@ -1297,6 +1297,269 @@
   font-weight: 550;
 }
 
+/* ---------- Autonomous Caregiver AI (Maritime + Prune) ---------- */
+.caregiver-drawer-container {
+  margin-top: 14px;
+  border: 1px solid rgba(137, 182, 165, 0.35);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.caregiver-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 150ms ease;
+}
+
+.caregiver-toggle:hover {
+  background: rgba(137, 182, 165, 0.05);
+}
+
+.caregiver-toggle-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.agent-icon-wrapper {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #6366f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.agent-title-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.agent-title {
+  font-size: 12.8px;
+  font-weight: 650;
+  color: var(--text);
+}
+
+.agent-subtitle {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.caregiver-toggle-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.agent-urgent-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.agent-status-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.caregiver-body {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--ivory);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.platform-badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.platform-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 6px;
+}
+
+.platform-badge.maritime {
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.platform-badge.prune {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.caregiver-actions-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.agent-eval-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 7px 12px;
+}
+
+.agent-custom-form {
+  display: flex;
+  flex: 1;
+  min-width: 220px;
+  gap: 6px;
+}
+
+.agent-input {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+}
+
+.agent-input:focus {
+  border-color: var(--primary);
+}
+
+.agent-send-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.triage-result-card {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.triage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.triage-urgency {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.triage-time {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.triage-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.triage-plan-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.triage-plan-text {
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.triage-spoken-text {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--primary);
+  margin: 0;
+}
+
+.prune-telemetry-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+}
+
+.prune-metric {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.prune-metrics-footer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.prune-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
 /* ---------- Dataset collector ---------- */
 .collector-card {
   border-style: dashed;
