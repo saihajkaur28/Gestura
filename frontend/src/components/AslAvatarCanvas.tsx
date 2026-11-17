@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import {
   getAslAnimation,
   type ArmPose,
@@ -14,6 +15,7 @@ interface AslAvatarCanvasProps {
   characterId: string
   compact?: boolean
   onAnimationEnded?: () => void
+  onSyncStateChange?: (state: 'synced' | 'synchronizing' | 'unavailable') => void
 }
 
 // Character visual themes
@@ -25,6 +27,8 @@ interface CharacterTheme {
   accentColor: number
   hairStyle: 'long' | 'short' | 'undercut'
   hasWristbands?: boolean
+  isGlbModel?: boolean
+  modelUrl?: string
 }
 
 const CHARACTER_THEMES: Record<string, CharacterTheme> = {
@@ -54,6 +58,16 @@ const CHARACTER_THEMES: Record<string, CharacterTheme> = {
     hairStyle: 'undercut',
     hasWristbands: true,
   },
+  signkit: {
+    name: 'Sign-Kit (X-Bot)',
+    skinColor: 0x4f7a8a,
+    hairColor: 0x1f2924,
+    clothingColor: 0x243b35,
+    accentColor: 0x89b6a5,
+    hairStyle: 'short',
+    isGlbModel: true,
+    modelUrl: '/models/avatars/xbot.glb',
+  },
 }
 
 // Helper to linearly interpolate a single number
@@ -79,6 +93,7 @@ export default function AslAvatarCanvas({
   characterId = 'maya',
   compact = false,
   onAnimationEnded,
+  onSyncStateChange,
 }: AslAvatarCanvasProps) {
   const mountRef = useRef<HTMLDivElement | null>(null)
   const [hasValidAnimation, setHasValidAnimation] = useState(false)
@@ -90,26 +105,26 @@ export default function AslAvatarCanvas({
 
   // Node references for skeletal manipulation
   const skeletonRef = useRef<{
-    headNode: THREE.Group
-    rightShoulder: THREE.Group
-    rightElbow: THREE.Group
-    rightWrist: THREE.Group
+    headNode: THREE.Object3D
+    rightShoulder: THREE.Object3D
+    rightElbow: THREE.Object3D
+    rightWrist: THREE.Object3D
     rightFingers: {
-      thumb: [THREE.Group, THREE.Group]
-      index: [THREE.Group, THREE.Group, THREE.Group]
-      middle: [THREE.Group, THREE.Group, THREE.Group]
-      ring: [THREE.Group, THREE.Group, THREE.Group]
-      pinky: [THREE.Group, THREE.Group, THREE.Group]
+      thumb: [THREE.Object3D, THREE.Object3D]
+      index: [THREE.Object3D, THREE.Object3D, THREE.Object3D]
+      middle: [THREE.Object3D, THREE.Object3D, THREE.Object3D]
+      ring: [THREE.Object3D, THREE.Object3D, THREE.Object3D]
+      pinky: [THREE.Object3D, THREE.Object3D, THREE.Object3D]
     }
-    leftShoulder: THREE.Group
-    leftElbow: THREE.Group
-    leftWrist: THREE.Group
+    leftShoulder: THREE.Object3D
+    leftElbow: THREE.Object3D
+    leftWrist: THREE.Object3D
     leftFingers: {
-      thumb: [THREE.Group, THREE.Group]
-      index: [THREE.Group, THREE.Group, THREE.Group]
-      middle: [THREE.Group, THREE.Group, THREE.Group]
-      ring: [THREE.Group, THREE.Group, THREE.Group]
-      pinky: [THREE.Group, THREE.Group, THREE.Group]
+      thumb: [THREE.Object3D, THREE.Object3D]
+      index: [THREE.Object3D, THREE.Object3D, THREE.Object3D]
+      middle: [THREE.Object3D, THREE.Object3D, THREE.Object3D]
+      ring: [THREE.Object3D, THREE.Object3D, THREE.Object3D]
+      pinky: [THREE.Object3D, THREE.Object3D, THREE.Object3D]
     }
   } | null>(null)
 
@@ -119,14 +134,17 @@ export default function AslAvatarCanvas({
     if (activeSignAnim) {
       setHasValidAnimation(true)
       setAnimationDescription(activeSignAnim.description)
+      if (onSyncStateChange) onSyncStateChange('synced')
     } else if (activeSign) {
       setHasValidAnimation(false)
       setAnimationDescription(null)
+      if (onSyncStateChange) onSyncStateChange('unavailable')
     } else {
       setHasValidAnimation(false)
       setAnimationDescription(null)
+      if (onSyncStateChange) onSyncStateChange('unavailable')
     }
-  }, [activeSign, activeSignAnim])
+  }, [activeSign, activeSignAnim, onSyncStateChange])
 
   // Reset clock when active sign changes
   useEffect(() => {
@@ -203,9 +221,101 @@ export default function AslAvatarCanvas({
 
     const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x1a211e })
 
-    // 4. Construct Humanoid Avatar Rig
-    const avatarGroup = new THREE.Group()
-    scene.add(avatarGroup)
+    // 4. Construct Humanoid Avatar Rig or Load Sign-Kit GLTF Avatar
+    if (theme.isGlbModel) {
+      const loader = new GLTFLoader()
+      loader.load(
+        theme.modelUrl || '/models/avatars/xbot.glb',
+        (gltf) => {
+          gltf.scene.traverse((child: any) => {
+            if (child.isMesh || child.type === 'SkinnedMesh') {
+              child.frustumCulled = false
+              child.castShadow = true
+              child.receiveShadow = true
+            }
+          })
+
+          gltf.scene.position.set(0, 0, 0)
+          scene.add(gltf.scene)
+
+          function findBone(...names: string[]): THREE.Object3D {
+            for (const name of names) {
+              const obj = gltf.scene.getObjectByName(name)
+              if (obj) return obj
+            }
+            return new THREE.Group()
+          }
+
+          skeletonRef.current = {
+            headNode: findBone('mixamorig:Head', 'mixamorigHead'),
+            rightShoulder: findBone('mixamorig:RightArm', 'mixamorigRightArm'),
+            rightElbow: findBone('mixamorig:RightForeArm', 'mixamorigRightForeArm'),
+            rightWrist: findBone('mixamorig:RightHand', 'mixamorigRightHand'),
+            rightFingers: {
+              thumb: [
+                findBone('mixamorig:RightHandThumb1', 'mixamorigRightHandThumb1'),
+                findBone('mixamorig:RightHandThumb2', 'mixamorigRightHandThumb2'),
+              ],
+              index: [
+                findBone('mixamorig:RightHandIndex1', 'mixamorigRightHandIndex1'),
+                findBone('mixamorig:RightHandIndex2', 'mixamorigRightHandIndex2'),
+                findBone('mixamorig:RightHandIndex3', 'mixamorigRightHandIndex3'),
+              ],
+              middle: [
+                findBone('mixamorig:RightHandMiddle1', 'mixamorigRightHandMiddle1'),
+                findBone('mixamorig:RightHandMiddle2', 'mixamorigRightHandMiddle2'),
+                findBone('mixamorig:RightHandMiddle3', 'mixamorigRightHandMiddle3'),
+              ],
+              ring: [
+                findBone('mixamorig:RightHandRing1', 'mixamorigRightHandRing1'),
+                findBone('mixamorig:RightHandRing2', 'mixamorigRightHandRing2'),
+                findBone('mixamorig:RightHandRing3', 'mixamorigRightHandRing3'),
+              ],
+              pinky: [
+                findBone('mixamorig:RightHandPinky1', 'mixamorigRightHandPinky1'),
+                findBone('mixamorig:RightHandPinky2', 'mixamorigRightHandPinky2'),
+                findBone('mixamorig:RightHandPinky3', 'mixamorigRightHandPinky3'),
+              ],
+            },
+            leftShoulder: findBone('mixamorig:LeftArm', 'mixamorigLeftArm'),
+            leftElbow: findBone('mixamorig:LeftForeArm', 'mixamorigLeftForeArm'),
+            leftWrist: findBone('mixamorig:LeftHand', 'mixamorigLeftHand'),
+            leftFingers: {
+              thumb: [
+                findBone('mixamorig:LeftHandThumb1', 'mixamorigLeftHandThumb1'),
+                findBone('mixamorig:LeftHandThumb2', 'mixamorigLeftHandThumb2'),
+              ],
+              index: [
+                findBone('mixamorig:LeftHandIndex1', 'mixamorigLeftHandIndex1'),
+                findBone('mixamorig:LeftHandIndex2', 'mixamorigLeftHandIndex2'),
+                findBone('mixamorig:LeftHandIndex3', 'mixamorigLeftHandIndex3'),
+              ],
+              middle: [
+                findBone('mixamorig:LeftHandMiddle1', 'mixamorigLeftHandMiddle1'),
+                findBone('mixamorig:LeftHandMiddle2', 'mixamorigLeftHandMiddle2'),
+                findBone('mixamorig:LeftHandMiddle3', 'mixamorigLeftHandMiddle3'),
+              ],
+              ring: [
+                findBone('mixamorig:LeftHandRing1', 'mixamorigLeftHandRing1'),
+                findBone('mixamorig:LeftHandRing2', 'mixamorigLeftHandRing2'),
+                findBone('mixamorig:LeftHandRing3', 'mixamorigLeftHandRing3'),
+              ],
+              pinky: [
+                findBone('mixamorig:LeftHandPinky1', 'mixamorigLeftHandPinky1'),
+                findBone('mixamorig:LeftHandPinky2', 'mixamorigLeftHandPinky2'),
+                findBone('mixamorig:LeftHandPinky3', 'mixamorigLeftHandPinky3'),
+              ],
+            },
+          }
+        },
+        undefined,
+        (err) => {
+          console.warn('Sign-Kit GLTF load error, fallback to procedural rig:', err)
+        }
+      )
+    } else {
+      const avatarGroup = new THREE.Group()
+      scene.add(avatarGroup)
 
     // Torso / Chest
     const torsoGeo = new THREE.CylinderGeometry(0.24, 0.19, 0.6, 16)
@@ -377,6 +487,7 @@ export default function AslAvatarCanvas({
       leftWrist: leftArmRig.wrist,
       leftFingers: leftArmRig.fingers,
     }
+  }
 
     // Handle Resize
     const handleResize = () => {
@@ -504,9 +615,9 @@ export default function AslAvatarCanvas({
 
   // Helper: Apply interpolated arm and 5-finger poses to Three.js rig
   function applyArmPose(
-    shoulderNode: THREE.Group,
-    elbowNode: THREE.Group,
-    wristNode: THREE.Group,
+    shoulderNode: THREE.Object3D,
+    elbowNode: THREE.Object3D,
+    wristNode: THREE.Object3D,
     fingers: any,
     pose1: ArmPose,
     pose2: ArmPose,

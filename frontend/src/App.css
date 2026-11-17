@@ -4636,6 +4636,212 @@
   gap: 18px;
 }
 
+/* Synchronized Signing Stage Header & View Mode Switcher */
+.asl-stage-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--ivory);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  flex-wrap: wrap;
+}
+
+.asl-stage-mode-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.asl-stage-mode-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.asl-stage-mode-pill:hover {
+  color: var(--charcoal);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.asl-stage-mode-pill.active {
+  background: var(--sage);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(10, 82, 56, 0.25);
+}
+
+.asl-stage-sync-badge-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.asl-sync-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  border: 1px solid transparent;
+}
+
+.asl-sync-indicator .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.asl-sync-indicator.synced {
+  background: var(--mint);
+  color: var(--sage-strong);
+  border-color: rgba(10, 82, 56, 0.2);
+}
+
+.asl-sync-indicator.synced .dot {
+  background: var(--sage-strong);
+  box-shadow: 0 0 6px var(--sage-strong);
+}
+
+.asl-sync-indicator.syncing {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fde68a;
+}
+
+.asl-sync-indicator.syncing .dot {
+  background: #d97706;
+  animation: pulse-dot 1s infinite alternate;
+}
+
+.asl-sync-indicator.unavailable {
+  background: var(--ivory);
+  color: var(--muted);
+  border-color: var(--border);
+}
+
+.asl-sync-indicator.unavailable .dot {
+  background: var(--muted);
+}
+
+/* Dual Stage Grid (Side-by-Side vs Single Mode) */
+.asl-dual-stage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+.asl-dual-stage-grid.mode-video,
+.asl-dual-stage-grid.mode-avatar {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 960px) {
+  .asl-dual-stage-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.asl-stage-panel {
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.asl-stage-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--ivory);
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.asl-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 750;
+  color: var(--charcoal);
+  white-space: nowrap;
+}
+
+.asl-avatar-pills-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.asl-avatar-pill {
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.asl-avatar-pill:hover {
+  color: var(--charcoal);
+  border-color: var(--sage);
+}
+
+.asl-avatar-pill.active {
+  background: var(--sage);
+  color: #ffffff;
+  border-color: var(--sage-strong);
+}
+
+.asl-avatar-stage-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  min-height: 380px;
+  background: #131d1a;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.asl-sync-timeline-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sage-strong);
+  background: var(--mint);
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: -0.01em;
+}
+
 .asl-video-wrapper {
   position: relative;
   width: 100%;
@@ -5677,3 +5883,45 @@
   font-size: 1.25rem !important;
   font-weight: 650 !important;
 }
+
+/* Synchronized ASL 3D Avatar & Dual Stage High Contrast */
+.high-contrast .asl-stage-header-bar {
+  border: 3px solid var(--border) !important;
+  background: var(--surface) !important;
+}
+
+.high-contrast .asl-stage-mode-pill {
+  border: 2px solid var(--border) !important;
+  font-weight: 850 !important;
+}
+
+.high-contrast .asl-stage-mode-pill.active {
+  background: var(--sage) !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+.high-contrast .asl-stage-panel {
+  border: 3px solid var(--border) !important;
+}
+
+.high-contrast .asl-stage-panel-header {
+  border-bottom: 2px solid var(--border) !important;
+  background: var(--surface) !important;
+}
+
+.high-contrast .asl-avatar-pill {
+  border: 2px solid var(--border) !important;
+  font-weight: 850 !important;
+}
+
+.high-contrast .asl-avatar-pill.active {
+  background: var(--sage) !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .asl-sync-indicator {
+  border: 2px solid var(--border) !important;
+  font-weight: 850 !important;
+}
+

@@ -3,22 +3,41 @@ import {
   AlertCircle,
   ArrowLeft,
   BookOpen,
+  Box,
   Check,
   Clock,
+  Columns,
   Gauge,
   MessageSquare,
   Pause,
   Play,
   RotateCcw,
   Sparkles,
+  Video,
   Volume2,
   VolumeX,
 } from 'lucide-react'
+import AslAvatarCanvas from './AslAvatarCanvas'
+import { hasAslAnimation } from '../lib/aslAnimations'
 import type { ASLVideoItem } from '../data/learnVocabulary'
 
 export type { ASLVideoItem }
 
 type NavigationCategory = 'Alphabet' | 'Common Words' | 'Common Phrases'
+type StageViewMode = 'side-by-side' | 'video' | 'avatar'
+
+interface AvatarOption {
+  id: string
+  name: string
+  tag: string
+}
+
+const AVATAR_OPTIONS: AvatarOption[] = [
+  { id: 'maya', name: 'Maya', tag: 'Primary' },
+  { id: 'alex', name: 'Alex', tag: 'Clinical' },
+  { id: 'jordan', name: 'Jordan', tag: 'High-Fid' },
+  { id: 'signkit', name: 'Sign-Kit', tag: 'X-Bot 3D' },
+]
 
 interface ASLVideoPlayerProps {
   item: ASLVideoItem
@@ -65,6 +84,19 @@ export default function ASLVideoPlayer({
   const [isMuted, setIsMuted] = useState(true)
   const [isLooping, setIsLooping] = useState(false)
   const [playbackError, setPlaybackError] = useState<string | null>(null)
+
+  // Stage display mode and 3D avatar selection
+  const [viewMode, setViewMode] = useState<StageViewMode>('side-by-side')
+  const [selectedAvatarId, setSelectedAvatarId] = useState<string>('maya')
+  const [isSeeking, setIsSeeking] = useState(false)
+  const [, setAvatarSyncState] = useState<'synced' | 'synchronizing' | 'unavailable'>('synced')
+
+  const hasAnimation = hasAslAnimation(item.title) || hasAslAnimation(item.id)
+  const syncStatus = !hasAnimation
+    ? 'Animation Unavailable'
+    : isSeeking
+    ? 'Synchronizing'
+    : 'Synced'
 
   const isUnavailable = item.status === 'unavailable' || !item.videoUrl
 
@@ -138,9 +170,14 @@ export default function ASLVideoPlayer({
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTime = parseFloat(e.target.value)
     setCurrentTime(newTime)
+    setIsSeeking(true)
     if (videoRef.current) {
       videoRef.current.currentTime = newTime
     }
+  }
+
+  const handleSeekEnd = () => {
+    setIsSeeking(false)
   }
 
   const handleToggleMute = () => {
@@ -218,84 +255,174 @@ export default function ASLVideoPlayer({
 
       {/* Main 3-Section Layout: Video Viewport + Sign Details + Dynamic Navigation Panel */}
       <div className="asl-player-layout-3col">
-        {/* SECTION 1: Video Viewport & Playback Controls */}
+        {/* SECTION 1: Synchronized Signing Stage & Playback Controls */}
         <div className="asl-player-viewport-card">
-          <div className="asl-video-wrapper">
-            {isUnavailable ? (
-              <div className="asl-unavailable-card" role="status">
-                <div className="asl-unavailable-icon-circle">
-                  <Clock size={36} strokeWidth={2} />
-                </div>
-                <h3>Sign Demonstration In Verification</h3>
-                <p className="asl-unavailable-text">
-                  An authentic ASL signing video for <strong>"{item.title}"</strong> is currently in the
-                  recording and verification pipeline.
-                </p>
-                <p className="asl-unavailable-subtext">
-                  Review the movement and handshape breakdown in Sign Details, or select another item
-                  from the navigation panel.
-                </p>
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={() => handleCategorySwitch('Alphabet')}
-                >
-                  <BookOpen size={15} />
-                  Practice Alphabet (A–Z)
-                </button>
-              </div>
-            ) : (
-              <>
-                <video
-                  ref={videoRef}
-                  src={item.videoUrl}
-                  className="asl-video-element"
-                  playsInline
-                  muted={isMuted}
-                  loop={isLooping}
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                  onEnded={() => {
-                    if (!isLooping) setIsPlaying(false)
-                  }}
-                  onTimeUpdate={handleTimeUpdate}
-                  onLoadedMetadata={handleLoadedMetadata}
-                  onError={() => {
-                    setPlaybackError('Video stream unavailable. Please verify video source.')
-                  }}
-                  onClick={handleTogglePlay}
-                />
+          {/* Stage View Mode & Synchronization Status Bar */}
+          <div className="asl-stage-header-bar">
+            <div className="asl-stage-mode-pills" role="radiogroup" aria-label="Signing Stage View Mode">
+              <button
+                type="button"
+                className={`asl-stage-mode-pill ${viewMode === 'side-by-side' ? 'active' : ''}`}
+                onClick={() => setViewMode('side-by-side')}
+                aria-pressed={viewMode === 'side-by-side'}
+              >
+                <Columns size={14} />
+                <span>Side-by-Side</span>
+              </button>
+              <button
+                type="button"
+                className={`asl-stage-mode-pill ${viewMode === 'video' ? 'active' : ''}`}
+                onClick={() => setViewMode('video')}
+                aria-pressed={viewMode === 'video'}
+              >
+                <Video size={14} />
+                <span>ASL Video</span>
+              </button>
+              <button
+                type="button"
+                className={`asl-stage-mode-pill ${viewMode === 'avatar' ? 'active' : ''}`}
+                onClick={() => setViewMode('avatar')}
+                aria-pressed={viewMode === 'avatar'}
+              >
+                <Box size={14} />
+                <span>3D Avatar</span>
+              </button>
+            </div>
 
-                {/* Big Play Overlay on Pause */}
-                {!isPlaying && (
-                  <button
-                    type="button"
-                    className="asl-video-big-play-overlay"
-                    onClick={handleTogglePlay}
-                    aria-label="Play Video"
-                  >
-                    <Play size={44} fill="currentColor" />
-                  </button>
-                )}
+            <div className="asl-stage-sync-badge-wrapper">
+              <span
+                className={`asl-sync-indicator ${
+                  syncStatus === 'Synced' ? 'synced' : syncStatus === 'Synchronizing' ? 'syncing' : 'unavailable'
+                }`}
+                title={
+                  syncStatus === 'Synced'
+                    ? '3D avatar is locked and synchronized to reference video timestamps'
+                    : syncStatus === 'Synchronizing'
+                    ? 'Updating avatar frame pose to video scrub position'
+                    : 'Authentic 3D animation keyframes in conversion pipeline'
+                }
+              >
+                <span className="dot" />
+                <span>{syncStatus}</span>
+              </span>
+            </div>
+          </div>
 
-                {playbackError && (
-                  <div className="asl-video-error-overlay" role="alert">
-                    <AlertCircle size={32} />
-                    <p>{playbackError}</p>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      onClick={handleTogglePlay}
-                    >
-                      Retry Playback
-                    </button>
+          {/* Synchronized Signing Stage Layout (Side-by-Side / Video / Avatar) */}
+          <div className={`asl-dual-stage-grid mode-${viewMode}`}>
+            {/* LEFT PANEL: ASL Reference Video */}
+            {(viewMode === 'side-by-side' || viewMode === 'video') && (
+              <div className="asl-stage-panel asl-panel-video">
+                <div className="asl-stage-panel-header">
+                  <div className="asl-panel-title">
+                    <Video size={14} className="text-sage" />
+                    <span>ASL Reference</span>
                   </div>
-                )}
-              </>
+                  <span className="badge badge-ok">Original Signer</span>
+                </div>
+
+                <div className="asl-video-wrapper">
+                  {isUnavailable ? (
+                    <div className="asl-unavailable-card" role="status">
+                      <div className="asl-unavailable-icon-circle">
+                        <Clock size={32} strokeWidth={2} />
+                      </div>
+                      <h3>Sign In Verification</h3>
+                      <p className="asl-unavailable-text">
+                        An authentic ASL signing video for <strong>"{item.title}"</strong> is currently in verification.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <video
+                        ref={videoRef}
+                        src={item.videoUrl}
+                        className="asl-video-element"
+                        playsInline
+                        muted={isMuted}
+                        loop={isLooping}
+                        onPlay={() => setIsPlaying(true)}
+                        onPause={() => setIsPlaying(false)}
+                        onEnded={() => {
+                          if (!isLooping) setIsPlaying(false)
+                        }}
+                        onTimeUpdate={handleTimeUpdate}
+                        onLoadedMetadata={handleLoadedMetadata}
+                        onError={() => {
+                          setPlaybackError('Video stream unavailable. Please verify video source.')
+                        }}
+                        onClick={handleTogglePlay}
+                      />
+
+                      {!isPlaying && (
+                        <button
+                          type="button"
+                          className="asl-video-big-play-overlay"
+                          onClick={handleTogglePlay}
+                          aria-label="Play Video"
+                        >
+                          <Play size={40} fill="currentColor" />
+                        </button>
+                      )}
+
+                      {playbackError && (
+                        <div className="asl-video-error-overlay" role="alert">
+                          <AlertCircle size={28} />
+                          <p>{playbackError}</p>
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm"
+                            onClick={handleTogglePlay}
+                          >
+                            Retry
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* RIGHT PANEL: 3D Avatar (Synchronized to master video timeline) */}
+            {(viewMode === 'side-by-side' || viewMode === 'avatar') && (
+              <div className="asl-stage-panel asl-panel-avatar">
+                <div className="asl-stage-panel-header">
+                  <div className="asl-panel-title">
+                    <Box size={14} className="text-sage" />
+                    <span>3D Avatar ({AVATAR_OPTIONS.find((a) => a.id === selectedAvatarId)?.name || 'Maya'})</span>
+                  </div>
+
+                  <div className="asl-avatar-pills-row" role="radiogroup" aria-label="Select Signing Avatar">
+                    {AVATAR_OPTIONS.map((av) => (
+                      <button
+                        key={av.id}
+                        type="button"
+                        className={`asl-avatar-pill ${selectedAvatarId === av.id ? 'active' : ''}`}
+                        onClick={() => setSelectedAvatarId(av.id)}
+                        title={av.name}
+                      >
+                        {av.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="asl-avatar-stage-wrapper">
+                  <AslAvatarCanvas
+                    activeSign={item.title}
+                    videoRef={videoRef}
+                    playing={isPlaying}
+                    playbackSpeed={playbackSpeed}
+                    characterId={selectedAvatarId}
+                    onSyncStateChange={setAvatarSyncState}
+                  />
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Interactive Timeline Scrubbing Bar */}
+          {/* Interactive Shared Timeline Scrubbing Bar */}
           {!isUnavailable && (
             <div className="asl-timeline-container">
               <input
@@ -305,17 +432,22 @@ export default function ASLVideoPlayer({
                 step="0.01"
                 value={currentTime}
                 onChange={handleSeek}
+                onMouseUp={handleSeekEnd}
+                onTouchEnd={handleSeekEnd}
                 className="asl-timeline-slider"
-                aria-label="Video timeline seek"
+                aria-label="Synchronized timeline seek"
               />
               <div className="asl-timeline-labels">
                 <span className="asl-time-current">{formatTime(currentTime)}</span>
+                <span className="asl-sync-timeline-pill">
+                  {syncStatus === 'Synced' ? 'Timeline Synced (Master: Video)' : 'Synchronizing Timeline...'}
+                </span>
                 <span className="asl-time-duration">{formatTime(duration)}</span>
               </div>
             </div>
           )}
 
-          {/* Primary Playback Action Controls */}
+          {/* Primary Shared Playback Action Controls */}
           {!isUnavailable && (
             <div className="asl-player-controls-row">
               <div className="asl-playback-actions">

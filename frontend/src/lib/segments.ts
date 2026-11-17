@@ -1,9 +1,13 @@
 import type { SignInfo } from './api'
+import { ALL_ASL_LIBRARY_ITEMS, type AslSharedItem } from './aslLibrary'
 
 export interface SignSegment {
   text: string
   sign: SignInfo | null
+  libraryItem?: AslSharedItem
   aslGloss?: string
+  videoUrl?: string
+  animationId?: string
   isFingerspelled?: boolean
   letters?: string[]
   reason?: string
@@ -64,26 +68,86 @@ const STEM_MAP: Record<string, string> = {
   hi: 'hello',
   hey: 'hello',
   greetings: 'hello',
+  okay: 'fine',
+  alright: 'fine',
+  well: 'fine',
 }
 
-export function segmentText(text: string, signs: SignInfo[]): SignSegment[] {
+interface MatchCandidate {
+  sign: SignInfo | null
+  libraryItem?: AslSharedItem
+  gloss: string
+  videoUrl: string
+  animationId: string
+}
+
+export function segmentText(text: string, signs: SignInfo[] = []): SignSegment[] {
   if (!text || text.trim() === '') return []
 
-  const lookup = new Map<string, SignInfo>()
+  const lookup = new Map<string, MatchCandidate>()
   let maxWords = 1
 
-  // Index signs by sign id, gloss, and all associated keywords
+  // 1. Index Shared ASL Library (Alphabet, Words, and Verified Phrases)
+  for (const item of ALL_ASL_LIBRARY_ITEMS) {
+    const candidate: MatchCandidate = {
+      sign: {
+        sign: item.id,
+        filename: item.videoUrl.split('/').pop() || `${item.id}.mp4`,
+        video_url: item.videoUrl,
+        frontend_video_url: item.videoUrl,
+        gloss: item.gloss,
+        category: item.category,
+        description: item.description,
+        source: 'Yale ASL Signbank & WLASL',
+      },
+      libraryItem: item,
+      gloss: item.gloss,
+      videoUrl: item.videoUrl,
+      animationId: item.animationId,
+    }
+
+    const primaryKey = normalize(item.name)
+    if (primaryKey) {
+      lookup.set(primaryKey, candidate)
+      maxWords = Math.max(maxWords, primaryKey.split(' ').length)
+    }
+
+    const idKey = normalize(item.id.replace(/[-_]/g, ' '))
+    if (idKey) {
+      lookup.set(idKey, candidate)
+      maxWords = Math.max(maxWords, idKey.split(' ').length)
+    }
+
+    if (item.keywords) {
+      for (const kw of item.keywords) {
+        const kwKey = normalize(kw)
+        if (kwKey) {
+          lookup.set(kwKey, candidate)
+          maxWords = Math.max(maxWords, kwKey.split(' ').length)
+        }
+      }
+    }
+  }
+
+  // 2. Index Dynamic SignInfo signs (e.g. from backend API)
   for (const sign of signs) {
     const primaryKey = normalize(sign.sign.replace(/_/g, ' '))
+    const candidate: MatchCandidate = {
+      sign,
+      gloss: sign.gloss ?? sign.sign.toUpperCase(),
+      videoUrl: sign.frontend_video_url ?? sign.video_url,
+      animationId: sign.sign,
+    }
+
     if (primaryKey) {
-      lookup.set(primaryKey, sign)
+      lookup.set(primaryKey, candidate)
       maxWords = Math.max(maxWords, primaryKey.split(' ').length)
     }
 
     if (sign.gloss) {
       const glossKey = normalize(sign.gloss.replace(/-/g, ' '))
       if (glossKey) {
-        lookup.set(glossKey, sign)
+        lookup.set(glossKey, candidate)
         maxWords = Math.max(maxWords, glossKey.split(' ').length)
       }
     }
@@ -92,14 +156,14 @@ export function segmentText(text: string, signs: SignInfo[]): SignSegment[] {
       for (const kw of sign.keywords) {
         const kwKey = normalize(kw)
         if (kwKey) {
-          lookup.set(kwKey, sign)
+          lookup.set(kwKey, candidate)
           maxWords = Math.max(maxWords, kwKey.split(' ').length)
         }
       }
     }
   }
 
-  // Tokenize input by whitespace while tracking word chunks
+  // 3. Tokenize input by whitespace while tracking word chunks
   const rawTokens = text.trim().split(/\s+/).filter(Boolean)
   const segments: SignSegment[] = []
   let index = 0
@@ -108,23 +172,26 @@ export function segmentText(text: string, signs: SignInfo[]): SignSegment[] {
     let matched = false
     const limit = Math.min(maxWords, rawTokens.length - index)
 
-    // 1. Try multi-word greedy matching first
+    // Greedy multi-word matching
     for (let size = limit; size >= 1; size -= 1) {
       const chunk = rawTokens.slice(index, index + size).join(' ')
       const normChunk = normalize(chunk)
 
-      let sign = lookup.get(normChunk)
+      let candidate = lookup.get(normChunk)
 
       // Try stem map if not directly matched
-      if (!sign && STEM_MAP[normChunk]) {
-        sign = lookup.get(STEM_MAP[normChunk])
+      if (!candidate && STEM_MAP[normChunk]) {
+        candidate = lookup.get(STEM_MAP[normChunk])
       }
 
-      if (sign) {
+      if (candidate) {
         segments.push({
           text: chunk,
-          sign,
-          aslGloss: sign.gloss ?? sign.sign.toUpperCase(),
+          sign: candidate.sign,
+          libraryItem: candidate.libraryItem,
+          aslGloss: candidate.gloss,
+          videoUrl: candidate.videoUrl,
+          animationId: candidate.animationId,
         })
         index += size
         matched = true
@@ -132,17 +199,21 @@ export function segmentText(text: string, signs: SignInfo[]): SignSegment[] {
       }
     }
 
-    // 2. If no lexical sign matched, handle single word fallback (fingerspelling for names/unsupported words)
+    // Single token fallback (fingerspelling or unsupported)
     if (!matched) {
       const token = rawTokens[index]
       const cleanWord = token.replace(/[^a-zA-Z]/g, '')
 
       if (cleanWord.length > 0) {
-        // ASL Linguistic Convention: Words without an established lexical sign are fingerspelled
+        const firstLetter = cleanWord[0].toLowerCase()
+        const firstLetterCandidate = lookup.get(firstLetter)
+
         segments.push({
           text: token,
           sign: null,
           aslGloss: `FS(${cleanWord.toUpperCase()})`,
+          videoUrl: firstLetterCandidate?.videoUrl ?? `/videos/alphabet/${firstLetter}.mp4`,
+          animationId: firstLetter,
           isFingerspelled: true,
           letters: cleanWord.toUpperCase().split(''),
           reason: 'Fingerspelled in ASL (no direct lexical sign)',

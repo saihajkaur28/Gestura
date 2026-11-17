@@ -23,11 +23,15 @@ venv/
 frontend/public/mediapipe/
 frontend/public/models/*
 !frontend/public/models/.gitkeep
+!frontend/public/models/avatars/
+!frontend/public/models/avatars/*
 
 # Collected landmark datasets and trained model artefacts are personal/large.
 # They are produced locally and never committed.
 backend/data/*
 !backend/data/asl_catalog.json
+!backend/data/asl_alphabet_animations.json
+!backend/data/asl_vocab_animations.json
 !backend/data/isl_sequences_bal.jsonl
 backend/models/
 
